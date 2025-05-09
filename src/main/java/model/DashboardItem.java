@@ -28,12 +28,12 @@ public class DashboardItem {
 
   @Override
   public String toString() {
-    return "{" +
+    return
         event +
         "@" + venue + '\'' +
         "on" + day + '\'' +
         "$" + price + '\'' +
         "remaining" + remaining +
-        '}';
+        '\n';
   }
 }
