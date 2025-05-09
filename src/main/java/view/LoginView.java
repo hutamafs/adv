@@ -39,7 +39,9 @@ public class LoginView extends Application {
 
       try {
         User user = LoginController.login(enteredUsername, enteredPassword);
-        resultLabel.setText("Welcome, " + user.getUsername() + "!");
+        DashboardView dashboardView = new DashboardView();
+        Scene dashboardScene = dashboardView.getScene(user);
+        primaryStage.setScene(dashboardScene);
       } catch (AuthenticationException e){
           resultLabel.setText(e.getMessage());
       }
