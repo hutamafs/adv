@@ -26,8 +26,9 @@ public class DashboardLoader {
     return events;
   }
 
-  public static void main(String[] args) throws FileNotFoundException {
-    loadItems("events.dat");
+  public static List<DashboardItem> main () throws FileNotFoundException {
+    List<DashboardItem> events = loadItems("events.dat");
+    return events;
   }
 }
 

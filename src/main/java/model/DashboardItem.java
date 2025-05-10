@@ -1,13 +1,13 @@
 package model;
 
 public class DashboardItem {
-  private final String event;
-  private final String venue;
-  private final String day;
-  private final int price;
-  private int sold;
-  private final int total;
-  private int remaining;
+  public final String event;
+  public final String venue;
+  public final String day;
+  public final int price;
+  public int sold;
+  public final int total;
+  public int remaining;
 
   public DashboardItem(String event, String venue, String day, int price, int sold, int total) {
     this.event = event;
@@ -17,6 +17,10 @@ public class DashboardItem {
     this.sold = sold;
     this.total = total;
     this.remaining = total-sold;
+  }
+
+  public String getEvent() {
+    return event;
   }
 
   public void setRemaining(int sold) {

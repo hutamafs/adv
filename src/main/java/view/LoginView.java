@@ -13,6 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.User;
 
+import java.io.FileNotFoundException;
+
 public class LoginView extends Application {
 
   @Override
@@ -42,7 +44,7 @@ public class LoginView extends Application {
         DashboardView dashboardView = new DashboardView();
         Scene dashboardScene = dashboardView.getScene(user);
         primaryStage.setScene(dashboardScene);
-      } catch (AuthenticationException e){
+      } catch (AuthenticationException | FileNotFoundException e){
           resultLabel.setText(e.getMessage());
       }
     });
