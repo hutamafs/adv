@@ -24,11 +24,11 @@ public class UserDAO {
       conn.createStatement().execute(sql);
       System.out.println("Users Table created");
     } catch (SQLException e) {
-      DbUtil.handleSqlError("error to create user table", e);
+      DbUtil.handleCreateTableError(e);
     }
   }
 
-  public void addUser(String username, String password, String email, String phone) {
+  public boolean createUser(String username, String password, String email, String phone) throws RegistrationException {
     String sql = """
       INSERT INTO users(username, password, email, phone)
       values (?,?,?,?)
@@ -40,11 +40,17 @@ public class UserDAO {
       stmt.setString(2, password);
       stmt.setString(3, email);
       stmt.setString(4, phone);
-      stmt.executeUpdate();
-      System.out.println("New user created");
+      int rowsInserted = stmt.executeUpdate();
+      if (rowsInserted > 0) {
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) {
+          return true;
+        }
+      }
     } catch (SQLException e) {
-      DbUtil.handleSqlError("failed to create new user", e);
+      DbUtil.handleRegisterError(e);
     }
+    return null;
   }
 
   public User validateLogin(String uName, String password) throws AuthenticationException{
@@ -69,8 +75,7 @@ public class UserDAO {
         throw new AuthenticationException("User not found");
       }
     } catch (SQLException e) {
-      DbUtil.handleSqlError("failed to validate login", e);
-      return null;
+      throw new AuthenticationException("Something went wrong. Please try again.");
     }
   }
 }
