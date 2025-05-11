@@ -14,15 +14,14 @@ public class UserDAO {
   public void createUserTable() {
     String sql = "CREATE TABLE IF NOT EXISTS users (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "username TEXT NOT NULL UNIQUE," +
-        "password TEXT NOT NULL," +
-        "email TEXT NOT NULL UNIQUE," +
-        "phone TEXT NOT NULL UNIQUE," +
+        "username TEXT NOT NULL UNIQUE CHECK (username <> '')," +
+        "password TEXT NOT NULL CHECK (password <> '')," +
+        "email TEXT NOT NULL UNIQUE CHECK (email <> '')," +
+        "phone TEXT NOT NULL UNIQUE CHECK (phone <> '')," +
         "isAdmin INTEGER NOT NULL DEFAULT 0" +
         ");";
     try {
       conn.createStatement().execute(sql);
-      System.out.println("Users Table created");
     } catch (SQLException e) {
       DbUtil.handleCreateTableError(e);
     }
@@ -47,10 +46,11 @@ public class UserDAO {
           return true;
         }
       }
-    } catch (SQLException e) {
+    }
+    catch (SQLException e) {
       DbUtil.handleRegisterError(e);
     }
-    return null;
+    return false;
   }
 
   public User validateLogin(String uName, String password) throws AuthenticationException{

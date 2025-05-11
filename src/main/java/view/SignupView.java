@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.User;
 
 public class SignupView extends Application {
 
@@ -16,8 +15,16 @@ public class SignupView extends Application {
   public void start(Stage primaryStage)  {
     VBox vbox = new VBox(10);
     vbox.setPadding(new Insets(10));
-    primaryStage.setTitle("Login Form");
-    Label label = new Label("Please login with your username and password");
+    primaryStage.setTitle("Register Form");
+    Label label = new Label("Please register your username, password, email and phone number");
+    Hyperlink loginLink = new Hyperlink("Already have an account? Login");
+    loginLink.setOnAction(e -> {
+      try {
+        new LoginView().start(primaryStage);
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    });
     vbox.getChildren().add(label);
 
     Label usernameLabel = new Label("Username:");
@@ -33,33 +40,36 @@ public class SignupView extends Application {
     TextField phoneField = new TextField();
     phoneField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches("\\d*") ? change : null));
 
-    Button loginButton = new Button("Login");
-    loginButton.setDefaultButton(true);
-    loginButton.setOnAction(_ -> {
+    Button registerButton = new Button("Sign up");
+    registerButton.setDefaultButton(true);
+    registerButton.setOnAction(_ -> {
+      resultLabel.setText("");
       String enteredUsername = usernameField.getText();
       String enteredPassword = passwordField.getText();
       String enteredEmail = emailField.getText();
       String phoneString = phoneField.getText();
 
       try {
-        User user = RegisterController.register(enteredUsername, enteredPassword, enteredEmail, phoneString);
-        DashboardView dashboardView = new DashboardView();
-        Scene dashboardScene = dashboardView.getScene(user);
-        primaryStage.setScene(dashboardScene);
+        boolean registerStatus = RegisterController.register(enteredUsername, enteredPassword, enteredEmail, phoneString);
+        if (registerStatus) {
+          LoginView loginView = new LoginView();
+          loginView.start(primaryStage, true);
+        }
       } catch (RegistrationException e){
+        System.out.println(e);
           resultLabel.setText(e.getMessage());
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        resultLabel.setText(e.getMessage());
       }
     });
 
-    vbox.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, loginButton, emailLabel, emailField, phoneLabel, phoneField, resultLabel);
+    vbox.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, emailLabel, emailField, phoneLabel, phoneField, registerButton, resultLabel, loginLink);
 
     Scene scene = new Scene(vbox, 500, 400);
     primaryStage.setScene(scene);
 
     // Set the title of the window.
-    primaryStage.setTitle("Register Form App");
+    primaryStage.setTitle("Register Form");
 
     // Show the window.
     primaryStage.show();

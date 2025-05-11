@@ -11,15 +11,19 @@ public class DbUtil {
   }
 
   public static void handleRegisterError(SQLException e) throws RegistrationException {
-    if (e.getMessage().contains("UNIQUE constraint failed")) {
-      if (e.getMessage().contains(".email")) {
+    System.out.println(e.getMessage());
+    if (e.getMessage().contains("CHECK")) {
+      throw new RegistrationException("Please make sure all fields are filled correctly.");
+    } else if (e.getMessage().contains("UNIQUE")) {
+      if (e.getMessage().contains(".username")) {
+        throw new RegistrationException("Username is already in use.");
+      } else if (e.getMessage().contains(".email")) {
         throw new RegistrationException("Email is already in use.");
       } else if (e.getMessage().contains(".phone")) {
         throw new RegistrationException("Phone number is already registered.");
-      } else {
-        throw new RegistrationException("A unique constraint failed.");
       }
+    } else {
+      throw new RegistrationException(e.getMessage());
     }
-    throw new RegistrationException("Database error: " + e.getMessage());
   }
 }
