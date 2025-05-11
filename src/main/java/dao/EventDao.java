@@ -1,0 +1,89 @@
+package dao;
+
+import factory.EventFactory;
+import model.Event;
+import util.DatabaseManager;
+import util.DbUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EventDao {
+  Connection conn = DatabaseManager.getInstance().getConnection();
+
+  public boolean isEventTableExist() throws Exception {
+    String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='events'";
+    try (PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+      return rs.next();
+    } catch (SQLException e) {
+      DbUtil.handleSqlError(e);
+      return false;
+    }
+  }
+
+  public List<Event> getAllEvents() throws SQLException {
+    List<Event> events = new ArrayList<Event>();
+    String sql = "select * from events";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery())
+    {
+      while (rs.next()) {
+        events.add(EventFactory.createFromResultSet(rs));
+      }
+    }
+    return events;
+  }
+
+  public void createEventTable() {
+    String sql = "CREATE TABLE IF NOT EXISTS events (" +
+        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "event TEXT NOT NULL CHECK (event <> '')," +
+        "venue TEXT NOT NULL CHECK (venue <> '')," +
+        "day TEXT NOT NULL CHECK (day <> '')," +
+        "price Integer NOT NULL CHECK (price <> '')," +
+        "sold Integer NOT NULL CHECK (sold <> '')," +
+        "total Integer NOT NULL CHECK (total <> '')," +
+        "remaining INTEGER NOT NULL CHECK (remaining <> '')" +
+        ");";
+    try {
+      conn.createStatement().execute(sql);
+    } catch (SQLException e) {
+      DbUtil.handleCreateTableError(e);
+    }
+  }
+
+  public boolean createEvent(String event, String venue, String day, Integer price, Integer sold, Integer total, Integer remaining) throws Exception {
+    String sql = """
+      INSERT INTO events(event, venue, day, price, sold, total , remaining )
+      values (?,?,?,?,?,?,?)
+    """;
+
+    try {
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, event);
+      stmt.setString(2, venue);
+      stmt.setString(3, day);
+      stmt.setInt(4, price);
+      stmt.setInt(5, sold);
+      stmt.setInt(6, total);
+      stmt.setInt(7, remaining);
+      int rowsInserted = stmt.executeUpdate();
+      if (rowsInserted > 0) {
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) {
+          return true;
+        }
+      }
+    }
+    catch (SQLException e) {
+      DbUtil.handleCreateEventError(e);
+    }
+    return false;
+  }
+}

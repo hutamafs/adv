@@ -1,5 +1,6 @@
 package view;
 
+import controller.EventController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,25 +11,23 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import model.DashboardItem;
+import model.Event;
 import model.User;
-import util.DashboardLoader;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.function.Function;
 
 public class DashboardView {
 
-  private TableColumn<DashboardItem, String> createColumn(String title, Function<DashboardItem, String> extractor) {
-    TableColumn<DashboardItem, String> col = new TableColumn<>(title);
+  private TableColumn<Event, String> createColumn(String title, Function<Event, String> extractor) {
+    TableColumn<Event, String> col = new TableColumn<>(title);
     col.setCellValueFactory(data -> new ReadOnlyStringWrapper(extractor.apply(data.getValue())));
     return col;
   }
 
-  public Scene getScene(User user) throws FileNotFoundException {
-    List<DashboardItem> events = DashboardLoader.loadItems("events.dat");
-    TableView<DashboardItem> table = new TableView<>();
+  public Scene getScene(User user) throws Exception {
+    List<Event> events = EventController.seedFromFileIfTableMissing("events.dat");
+    TableView<Event> table = new TableView<>();
     table.setEditable(true);
     VBox root = new VBox(10);
       table.getColumns().addAll(
@@ -40,7 +39,7 @@ public class DashboardView {
           createColumn("Remaining", d -> String.valueOf(d.remaining))
       );
 
-      ObservableList<DashboardItem> observableItems = FXCollections.observableList(events);
+      ObservableList<Event> observableItems = FXCollections.observableList(events);
       table.setPrefWidth(500);
       table.setPrefHeight(400);
       table.setMaxWidth(600);

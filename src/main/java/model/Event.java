@@ -1,6 +1,6 @@
 package model;
 
-public class DashboardItem {
+public class Event {
   public final String event;
   public final String venue;
   public final String day;
@@ -9,7 +9,7 @@ public class DashboardItem {
   public final int total;
   public int remaining;
 
-  public DashboardItem(String event, String venue, String day, int price, int sold, int total) {
+  public Event(String event, String venue, String day, int price, int sold, int total) {
     this.event = event;
     this.venue = venue;
     this.day = day;

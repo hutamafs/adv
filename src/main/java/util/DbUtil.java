@@ -11,7 +11,6 @@ public class DbUtil {
   }
 
   public static void handleRegisterError(SQLException e) throws RegistrationException {
-    System.out.println(e.getMessage());
     if (e.getMessage().contains("CHECK")) {
       throw new RegistrationException("Please make sure all fields are filled correctly.");
     } else if (e.getMessage().contains("UNIQUE")) {
@@ -25,5 +24,17 @@ public class DbUtil {
     } else {
       throw new RegistrationException(e.getMessage());
     }
+  }
+
+  public static void handleCreateEventError(SQLException e) throws Exception {
+    if (e.getMessage().contains("CHECK")) {
+      throw new Exception("Please make sure all fields are filled correctly.");
+    } else {
+      throw new Exception(e.getMessage());
+    }
+  }
+
+  public static void handleSqlError(SQLException e) throws Exception {
+    throw new Exception(e.getMessage());
   }
 }
