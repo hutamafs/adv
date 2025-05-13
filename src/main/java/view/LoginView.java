@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.User;
+import util.Session;
 
 public class LoginView extends Application {
 
@@ -52,6 +53,7 @@ public class LoginView extends Application {
 
       try {
         User user = LoginController.login(enteredUsername, enteredPassword);
+        Session.setCurrentUser(user);
         DashboardView dashboardView = new DashboardView();
         Scene dashboardScene = dashboardView.getScene(user);
         primaryStage.setScene(dashboardScene);

@@ -13,7 +13,9 @@ public class EventController {
       return dao.getAllEvents();
     } else {
       dao.createEventTable();
-      return EventLoader.loadFromFile(path);
+      List<Event> events = EventLoader.loadFromFile(path);
+      dao.bulkInsertEvent(events);
+      return dao.getAllEvents();
     }
   }
 }

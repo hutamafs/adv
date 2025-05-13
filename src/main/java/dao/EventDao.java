@@ -58,7 +58,7 @@ public class EventDao {
     }
   }
 
-  public boolean createEvent(String event, String venue, String day, Integer price, Integer sold, Integer total, Integer remaining) throws Exception {
+  public void bulkInsertEvent(List<Event> events) throws Exception {
     String sql = """
       INSERT INTO events(event, venue, day, price, sold, total , remaining )
       values (?,?,?,?,?,?,?)
@@ -66,24 +66,22 @@ public class EventDao {
 
     try {
       PreparedStatement stmt = conn.prepareStatement(sql);
-      stmt.setString(1, event);
-      stmt.setString(2, venue);
-      stmt.setString(3, day);
-      stmt.setInt(4, price);
-      stmt.setInt(5, sold);
-      stmt.setInt(6, total);
-      stmt.setInt(7, remaining);
-      int rowsInserted = stmt.executeUpdate();
-      if (rowsInserted > 0) {
-        ResultSet rs = stmt.getGeneratedKeys();
-        if (rs.next()) {
-          return true;
-        }
+      for (Event e : events) {
+        stmt.setString(1, e.event);
+        stmt.setString(2, e.venue);
+        stmt.setString(3, e.day);
+        stmt.setInt(4, e.price);
+        stmt.setInt(5, e.sold);
+        stmt.setInt(6, e.total);
+        stmt.setInt(7, e.remaining);
+        stmt.addBatch();
       }
+
+      stmt.executeBatch();
+      System.out.println("Events seeded into db");
     }
     catch (SQLException e) {
       DbUtil.handleCreateEventError(e);
     }
-    return false;
   }
 }
