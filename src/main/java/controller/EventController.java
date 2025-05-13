@@ -9,13 +9,11 @@ import java.util.List;
 public class EventController {
   public static List<Event> seedFromFileIfTableMissing(String path) throws Exception {
     EventDao dao = new EventDao();
-    if (dao.isEventTableExist()) {
-      return dao.getAllEvents();
-    } else {
-      dao.createEventTable();
+    dao.createEventTable();
+    if (dao.getAllEvents().isEmpty()) {
       List<Event> events = EventLoader.loadFromFile(path);
       dao.bulkInsertEvent(events);
-      return dao.getAllEvents();
     }
+    return dao.getAllEvents();
   }
 }

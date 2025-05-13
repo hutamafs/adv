@@ -7,8 +7,11 @@ import model.Event;
 import java.util.Optional;
 
 public class AlertUtil {
-  public static void alert(String title, String message) {
-    Alert alert = new Alert(Alert.AlertType.WARNING);
+  public static void notification(String type, String title, String message) {
+    var alert = new Alert(Alert.AlertType.INFORMATION);
+    if (type.equals("warning")) {
+      alert = new Alert(Alert.AlertType.WARNING);
+    }
     alert.setTitle(title);
     alert.setHeaderText(null);
     alert.setContentText(message);
@@ -51,7 +54,7 @@ public class AlertUtil {
       return true;
 
     } else {
-      AlertUtil.alert("invalid pin", "PIN must be exactly 6 digits");
+      AlertUtil.notification("warning","invalid pin", "PIN must be exactly 6 digits");
     }
     return false;
   }

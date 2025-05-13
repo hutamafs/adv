@@ -15,19 +15,8 @@ import java.util.List;
 public class EventDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
-  public boolean isEventTableExist() throws Exception {
-    String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='events'";
-    try (PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-      return rs.next();
-    } catch (SQLException e) {
-      DbUtil.handleSqlError(e);
-      return false;
-    }
-  }
-
   public List<Event> getAllEvents() throws SQLException {
-    List<Event> events = new ArrayList<Event>();
+    List<Event> events = new ArrayList<>();
     String sql = "select * from events";
 
     try (PreparedStatement ps = conn.prepareStatement(sql);

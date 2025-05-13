@@ -81,7 +81,7 @@ public class DashboardView {
               try {
                 int input = Integer.parseInt(amountField.getText());
                 if (input > item.remaining) {
-                  AlertUtil.alert("Invalid Booking", "You cannot book more tickets than remaining available tickets.");
+                  AlertUtil.notification("warning", "Invalid Booking", "You cannot book more tickets than remaining available tickets.");
                 }
                 int clamped = Math.max(1, Math.min(input, item.remaining));
                 amountField.setText(String.valueOf(clamped));
@@ -114,6 +114,7 @@ public class DashboardView {
               if (isBookingExecuted) {
                 try {
                   BookingController.createSingleBooking(item.event, item.day, amount, item.price * amount, Session.getCurrentUser());
+                  AlertUtil.notification("success", "Successfully booked", "You have successfully booked " + item.event + ". Total ticket(s): " + amount +  " x tickets.");
                 } catch (Exception e) {
                   throw new RuntimeException(e);
                 }

@@ -8,9 +8,4 @@ public class TableController {
     UserDAO dao = new UserDAO();
     dao.createUserTable();
   }
-
-  public static void createBookingTable() {
-    EventDao dao = new EventDao();
-    dao.createEventTable();
-  }
 }
