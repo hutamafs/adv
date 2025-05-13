@@ -1,5 +1,6 @@
 package view;
 
+import controller.BookingController;
 import controller.EventController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -15,6 +16,7 @@ import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
+import util.Session;
 
 
 import java.time.LocalDate;
@@ -107,7 +109,15 @@ public class DashboardView {
             Event item = getTableView().getItems().get(getIndex());
             if (item != null) {
               int amount = Integer.parseInt(amountField.getText());
-              AlertUtil.showPriceConfirmation(item, amount);
+              boolean isBookingExecuted = AlertUtil.showPriceConfirmation(item, amount);
+
+              if (isBookingExecuted) {
+                try {
+                  BookingController.createSingleBooking(item.event, item.day, amount, item.price * amount, Session.getCurrentUser());
+                } catch (Exception e) {
+                  throw new RuntimeException(e);
+                }
+              }
             }
           });
         }

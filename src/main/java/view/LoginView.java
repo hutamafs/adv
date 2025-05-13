@@ -53,7 +53,7 @@ public class LoginView extends Application {
 
       try {
         User user = LoginController.login(enteredUsername, enteredPassword);
-        Session.setCurrentUser(user);
+        Session.setCurrentUser(user.getUserId());
         DashboardView dashboardView = new DashboardView();
         Scene dashboardScene = dashboardView.getScene(user);
         primaryStage.setScene(dashboardScene);

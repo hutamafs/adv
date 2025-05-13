@@ -17,17 +17,12 @@ public class User {
     this.isAdmin = isAdmin;
   }
 
-  public User(int id, String username, String email, String phone, boolean isAdmin) {
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.phone = phone;
-    this.isAdmin = isAdmin;
-  }
-
   // getter
   public String getUsername() {
     return this.username;
+  }
+  public int getUserId() {
+    return this.id;
   }
 
   // isAdmin

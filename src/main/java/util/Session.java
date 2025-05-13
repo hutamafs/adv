@@ -3,17 +3,17 @@ package util;
 import model.User;
 
 public class Session {
-  private static User currentUser;
+  private static int currentLoggedInUserId;
 
-  public static void setCurrentUser(User user) {
-    currentUser = user;
+  public static void setCurrentUser(int userId) {
+    currentLoggedInUserId = userId;
   }
 
-  public static User getCurrentUser() {
-    return currentUser;
+  public static int getCurrentUser() {
+    return currentLoggedInUserId;
   }
 
   public static void clear() {
-    currentUser = null;
+    currentLoggedInUserId = 0;
   }
 }

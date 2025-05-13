@@ -84,4 +84,16 @@ public class EventDao {
       DbUtil.handleCreateEventError(e);
     }
   }
+
+  public void updateQuantity(int id, int quantity) throws Exception {
+    String sql = " UPDATE events SET sold = sold + ? WHERE id = ? ";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+      stmt.setInt(1, quantity);
+      stmt.setInt(2, id);
+      stmt.executeUpdate();
+      System.out.println("Event quantity updated");
+    } catch (SQLException e) {
+      DbUtil.handleSqlError(e);
+    }
+  }
 }

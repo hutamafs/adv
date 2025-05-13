@@ -15,7 +15,7 @@ public class AlertUtil {
     alert.showAndWait();
   }
 
-  public static void showPriceConfirmation(Event event, int amount) {
+  public static boolean showPriceConfirmation(Event event, int amount) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
     alert.setTitle("Price and Quantity Confirmation");
@@ -24,11 +24,12 @@ public class AlertUtil {
     Optional<ButtonType> result = alert.showAndWait();
 
     if (result.isPresent() && result.get() == ButtonType.YES) {
-      showPinVerification();
+      return showPinVerification();
     }
+    return false;
   }
 
-  public static void showPinVerification() {
+  public static boolean showPinVerification() {
     Dialog<String> dialog = new Dialog<>();
     dialog.setTitle("Pin Verification");
     dialog.setHeaderText("Enter 6 digit PIN confirmation (numbers only)");
@@ -47,9 +48,11 @@ public class AlertUtil {
 
     Optional<String> result = dialog.showAndWait();
     if (result.isPresent() && result.get().length() == 6) {
-      // we do theinsert new row, i willc reate it later
+      return true;
+
     } else {
       AlertUtil.alert("invalid pin", "PIN must be exactly 6 digits");
     }
+    return false;
   }
 }
