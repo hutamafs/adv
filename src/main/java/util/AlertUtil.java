@@ -23,7 +23,7 @@ public class AlertUtil {
     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
     alert.setTitle("Price and Quantity Confirmation");
     alert.setHeaderText(null);
-    alert.setContentText("Are you sure you want to book" + event.event + "buying" + amount + "for" + event.price * amount + "?");
+    alert.setContentText("Are you sure you want to book " + event.event + "buying " + amount + " tickets for $ " + event.price * amount + "?");
     Optional<ButtonType> result = alert.showAndWait();
 
     if (result.isPresent() && result.get() == ButtonType.YES) {
@@ -37,8 +37,8 @@ public class AlertUtil {
     dialog.setTitle("Pin Verification");
     dialog.setHeaderText("Enter 6 digit PIN confirmation (numbers only)");
 
-    ButtonType confirmaBtnType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
-    dialog.getDialogPane().getButtonTypes().addAll(confirmaBtnType, ButtonType.CANCEL);
+    ButtonType confirmBtnType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+    dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
 
     TextField pinField = new TextField();
     pinField.setTextFormatter(new TextFormatter<>(change ->
@@ -48,6 +48,13 @@ public class AlertUtil {
 
     VBox content = new VBox(10, new Label("PIN:"), pinField);
     dialog.getDialogPane().setContent(content);
+
+    dialog.setResultConverter(e -> {
+      if (e == confirmBtnType) {
+        return pinField.getText();
+      }
+      return null;
+    });
 
     Optional<String> result = dialog.showAndWait();
     if (result.isPresent() && result.get().length() == 6) {

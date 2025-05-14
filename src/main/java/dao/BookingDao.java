@@ -58,7 +58,7 @@ public class BookingDao {
       stmt.addBatch();
 
       stmt.executeBatch();
-      System.out.println("Events seeded into db");
+      System.out.println("book created");
     }
     catch (SQLException e) {
       DbUtil.handleCreateEventError(e);

@@ -21,6 +21,7 @@ public class EventFactory {
   }
 
   public static Event createFromResultSet(ResultSet rs) throws SQLException {
+    int id = rs.getInt("id");
     String event = rs.getString("event");
     String venue = rs.getString("venue");
     String day = rs.getString("day");
@@ -28,6 +29,6 @@ public class EventFactory {
     int sold = rs.getInt("sold");
     int total = rs.getInt("total");
 
-    return new Event(event, venue, day, price, sold, total);
+    return new Event(id, event, venue, day, price, sold, total);
   }
 }

@@ -20,6 +20,7 @@ import util.Session;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -115,6 +116,8 @@ public class DashboardView {
                 try {
                   BookingController.createSingleBooking(item.event, item.day, amount, item.price * amount, Session.getCurrentUser());
                   AlertUtil.notification("success", "Successfully booked", "You have successfully booked " + item.event + ". Total ticket(s): " + amount +  " x tickets.");
+                  EventController.updateQuantity(item.getId(), amount);
+                  updated
                 } catch (Exception e) {
                   throw new RuntimeException(e);
                 }
@@ -147,6 +150,7 @@ public class DashboardView {
 
   public Scene getScene(User user) throws Exception {
     List<Event> events = EventController.seedFromFileIfTableMissing("events.dat");
+    var updatedEevents = new ArrayList<Event>();
     TableView<Event> table = new TableView<>();
     table.setEditable(true);
     VBox root = new VBox(10);
@@ -165,7 +169,6 @@ public class DashboardView {
       table.setPrefHeight(400);
       table.setMaxWidth(800);
       table.setItems(observableItems);
-
 
       root.setPadding(new Insets(20, 40, 20, 40));
       root.getChildren().addAll(

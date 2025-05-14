@@ -1,6 +1,7 @@
 package model;
 
 public class Event {
+  public int id;
   public final String event;
   public final String venue;
   public final String day;
@@ -19,15 +20,19 @@ public class Event {
     this.remaining = total-sold;
   }
 
-  public String getEvent() {
-    return event;
+  public Event(int id, String event, String venue, String day, int price, int sold, int total) {
+    this.id = id;
+    this.event = event;
+    this.venue = venue;
+    this.day = day;
+    this.price = price;
+    this.sold = sold;
+    this.total = total;
+    this.remaining = total-sold;
   }
 
-  public void setRemaining(int sold) {
-    if (this.remaining - sold >= 0) {
-      this.remaining -= sold;
-      this.sold += sold;
-    }
+  public int getId() {
+    return id;
   }
 
   @Override
