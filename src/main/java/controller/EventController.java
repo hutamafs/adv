@@ -8,7 +8,13 @@ import java.util.List;
 
 public class EventController {
   final static EventDao dao = new EventDao();
+
+  public static boolean checkEventTable() {
+    return dao.checkEventTable();
+  }
+
   public static List<Event> seedFromFileIfTableMissing(String path) throws Exception {
+    System.out.println("created");
     dao.createEventTable();
     if (dao.getAllEvents().isEmpty()) {
       List<Event> events = EventLoader.loadFromFile(path);

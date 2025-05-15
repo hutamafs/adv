@@ -24,6 +24,7 @@ import util.Session;
 
 import java.time.LocalDate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -153,8 +154,8 @@ public class DashboardView {
   }
 
   public void renderTable() throws Exception {
-    List<Event> events = EventController.getAllEvents();
-    if (events.size() == 0) {
+    List<Event> events = new ArrayList<>();
+    if (!EventController.checkEventTable()) {
       events = EventController.seedFromFileIfTableMissing("events.dat");
     }
     observableItems = FXCollections.observableList(events);
