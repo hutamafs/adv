@@ -10,17 +10,17 @@ public class Event {
   public final int total;
   public int remaining;
 
-  public Event(String event, String venue, String day, int price, int sold, int total) {
+  public Event(String event, String venue, String day, int price, int sold, int total, int remaining) {
     this.event = event;
     this.venue = venue;
     this.day = day;
     this.price = price;
     this.sold = sold;
     this.total = total;
-    this.remaining = total-sold;
+    this.remaining = remaining;
   }
 
-  public Event(int id, String event, String venue, String day, int price, int sold, int total) {
+  public Event(int id, String event, String venue, String day, int price, int sold, int total, int remaining) {
     this.id = id;
     this.event = event;
     this.venue = venue;
@@ -28,7 +28,7 @@ public class Event {
     this.price = price;
     this.sold = sold;
     this.total = total;
-    this.remaining = total-sold;
+    this.remaining = remaining;
   }
 
   public int getId() {

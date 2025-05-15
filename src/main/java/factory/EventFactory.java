@@ -16,8 +16,9 @@ public class EventFactory {
     int price = Integer.parseInt(parts[3].trim());
     int sold = Integer.parseInt(parts[4].trim());
     int total = Integer.parseInt(parts[5].trim());
-
-    return new Event(event, venue, day, price, sold, total);
+    int remaining = total - sold
+;
+    return new Event(event, venue, day, price, sold, total, remaining);
   }
 
   public static Event createFromResultSet(ResultSet rs) throws SQLException {
@@ -28,11 +29,8 @@ public class EventFactory {
     int price = rs.getInt("price");
     int sold = rs.getInt("sold");
     int total = rs.getInt("total");
-    if (id == 6) {
-      System.out.println("rebough");
-      System.out.println(sold);
-    }
+    int remaining = total - sold;
 
-    return new Event(id, event, venue, day, price, sold, total);
+    return new Event(id, event, venue, day, price, sold, total, remaining);
   }
 }

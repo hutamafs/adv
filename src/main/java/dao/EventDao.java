@@ -35,11 +35,6 @@ public class EventDao {
       ResultSet rs = ps.executeQuery())
     {
       while (rs.next()) {
-        if (rs.getInt("id") == 6) {
-          System.out.println(rs.getInt("id"));
-          System.out.println(rs.getInt("sold"));
-        }
-
         events.add(EventFactory.createFromResultSet(rs));
       }
     }
