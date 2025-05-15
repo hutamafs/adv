@@ -14,6 +14,18 @@ import java.util.List;
 public class CartDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
+  public int getCurrentCartQuantity(int eventId) throws SQLException {
+    String sql = "SELECT quantity FROM carts WHERE eventId = ?";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ps.setInt(1, eventId);
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      return rs.getInt("quantity");
+    } else {
+      return 0;
+    }
+  }
+
   public int getEventRemainingQuantity(int eventId) throws SQLException {
     String sql = "SELECT events.remaining as remaining from events where id = ?";
     PreparedStatement ps = conn.prepareStatement(sql);
@@ -33,6 +45,7 @@ public class CartDao {
         "  events.event AS event,\n" +
         "  events.venue AS venue,\n" +
         "  events.price AS price,\n" +
+        "  events.remaining AS remaining,\n" +
         "  carts.quantity AS quantity\n" +
         "FROM carts\n" +
         "LEFT JOIN events ON carts.eventId = events.id\n" +
@@ -47,7 +60,8 @@ public class CartDao {
           String venue = rs.getString("venue");
           int price = rs.getInt("price");
           int quantity = rs.getInt("quantity");
-          carts.add(new Cart(id, event, venue, price, quantity));
+          int remaining = rs.getInt("remaining");
+          carts.add(new Cart(id, event, venue, price, quantity, remaining));
         }
       }
     }
@@ -105,15 +119,17 @@ public class CartDao {
     }
   }
 
-  public void removeFromCart(int id) throws Exception {
+  public boolean removeFromCart(int id) throws Exception {
     String sql = "DELETE FROM carts WHERE id = ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setInt(1, id);
       stmt.executeUpdate();
       System.out.println("item removed from cart");
+      return true;
     } catch (SQLException e) {
       DbUtil.handleSqlError(e);
     }
+    return false;
   }
 
   public void clearCart(int userId) throws Exception {

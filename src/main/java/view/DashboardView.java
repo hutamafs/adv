@@ -1,6 +1,7 @@
 package view;
 
 import controller.BookingController;
+import controller.CartController;
 import controller.EventController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -69,8 +70,8 @@ public class DashboardView {
       private final TextField amountField = new TextField("1");
       private final Button addBtn = new Button("+");
       private final Button minusBtn = new Button("-");
-      private final Button bookBtn = new Button("Book");
-      final HBox hbox = new HBox(5, minusBtn, amountField, addBtn, bookBtn);
+      private final Button addToCartBtn = new Button("Add to Cart");
+      final HBox hbox = new HBox(5, minusBtn, amountField, addBtn, addToCartBtn);
 
       {
         amountField.setAlignment(Pos.CENTER);
@@ -108,21 +109,20 @@ public class DashboardView {
           }
         });
 
-        bookBtn.setOnAction(_-> {
+        addToCartBtn.setOnAction(_-> {
           Event item = getTableView().getItems().get(getIndex());
           if (item != null) {
-            int amount = Integer.parseInt(amountField.getText());
-            boolean isBookingExecuted = AlertUtil.showPriceConfirmation(item, amount);
-
-            if (isBookingExecuted) {
-              try {
-                BookingController.createSingleBooking(item.event, item.day, amount, item.price * amount, Session.getCurrentUser());
-                AlertUtil.notification("success", "Successfully booked", "You have successfully booked " + item.event + ". Total ticket(s): " + amount +  " x tickets.");
-                EventController.updateQuantity(item.getId(), amount);
-                renderTable();
-              } catch (Exception e) {
-                throw new RuntimeException(e);
+            try {
+              int amount = Integer.parseInt(amountField.getText());
+              boolean isAddToCartExecuted = CartController.addToCart(item.id, amount);
+              if (isAddToCartExecuted) {
+                AlertUtil.notification("success", "Added to Cart", "Event has been added to cart.");
+              } else {
+                int currentQty = CartController.getCurrentCartQuantity(item.id);
+                AlertUtil.notification("warning", "not enough seats", "You have " + currentQty + " seats at your cart. Event does have not enough seats to add to the cart");
               }
+            } catch (Exception e) {
+              throw new RuntimeException(e);
             }
           }
         });
@@ -194,6 +194,7 @@ public class DashboardView {
     );
     topHeader.setPadding(new Insets(10));
     Button dashboardBtn = new Button("Dashboard");
+    Button cartBtn = new Button("Cart");
     Button bookingsBtn = new Button("My previous orders");
 
     dashboardBtn.setOnAction(_-> {
@@ -204,6 +205,17 @@ public class DashboardView {
         e.printStackTrace();
       }
       mainContent.getChildren().setAll(table);
+    });
+
+    cartBtn.setOnAction(_-> {
+      Node carts = null;
+      try {
+        carts = new CartView().getScene();
+        stage.setTitle("Cart");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      mainContent.getChildren().setAll(carts);
     });
 
     bookingsBtn.setOnAction(_ -> {
@@ -227,7 +239,7 @@ public class DashboardView {
       }
     });
 
-    VBox sidebar = new VBox(10, dashboardBtn, bookingsBtn, logoutBtn);
+    VBox sidebar = new VBox(10, cartBtn, dashboardBtn, bookingsBtn, logoutBtn);
 
     mainLayout.setTop(topHeader);
     mainLayout.setLeft(sidebar);

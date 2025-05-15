@@ -5,6 +5,7 @@ import model.Cart;
 import util.AlertUtil;
 import util.Session;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class CartController {
@@ -13,12 +14,20 @@ public class CartController {
     dao.createCartTable();
   }
 
-  public static List<Cart> getCartForUser(int userId) throws Exception {
-    List <Cart> carts = dao.getCartForUser(userId);
+  public static int getEventRemainingQuantity(int id) throws SQLException {
+    return dao.getEventRemainingQuantity(id);
+  }
+
+  public static int getCurrentCartQuantity(int cartId) throws SQLException {
+    return dao.getCurrentCartQuantity(cartId);
+  }
+
+  public static List<Cart> getCartForUser() throws Exception {
+    List <Cart> carts = dao.getCartForUser(Session.getCurrentUser());
 
     // re adjust cart quantity to make sure the quantity in the cart mirrors whatever amount is available at the database
     for (Cart cart : carts) {
-      int remaining = dao.getEventRemainingQuantity(cart.getId());
+      int remaining = getEventRemainingQuantity(cart.getId());
 
       if (remaining < cart.getQuantity()) {
         cart.setQuantity(remaining);
@@ -30,20 +39,24 @@ public class CartController {
     return carts;
   }
 
-  public static void addToCart(int eventId, int quantity) throws Exception {
-    if (dao.getEventRemainingQuantity(eventId) < quantity) {
-      AlertUtil.notification("warning", "not enough seats", "Event does have not enough seats to add to cart.");
-    } else {
-      dao.addToCart(eventId, Session.getCurrentUser(), quantity);
+  public static boolean addToCart(int eventId, int quantity) throws Exception {
+    int currentCartQty = getCurrentCartQuantity(eventId);
+    int remaining = dao.getEventRemainingQuantity(eventId);
+
+    if (currentCartQty + quantity > remaining) {
+      return false;
     }
+
+    dao.addToCart(eventId, Session.getCurrentUser(), quantity);
+    return true;
   }
 
   public static void updateCartQuantity(int id, int quantity) throws Exception {
     dao.updateCartQuantity(id, quantity);
   }
 
-  public static void removeFromCart(int id) throws Exception {
-    dao.removeFromCart(id);
+  public static boolean removeFromCart(int cartId) throws Exception {
+    return dao.removeFromCart(cartId);
   }
 
   public static void clearCart() throws Exception {
