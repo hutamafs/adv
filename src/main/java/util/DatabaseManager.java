@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,7 +11,10 @@ public class DatabaseManager {
 
   private DatabaseManager() {
     try {
-      String url = "jdbc:sqlite:database/app.db";
+      String url = "jdbc:sqlite:/Users/hutamasaputra/Documents/uni/adv/database/app.db";
+      File dbFile = new File("database/app.db");
+      System.out.println("Absolute DB path: " + dbFile.getAbsolutePath());
+
       connection = DriverManager.getConnection(url);
       System.out.println("connected to db.");
     } catch (SQLException e) {

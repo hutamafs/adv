@@ -6,27 +6,31 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
 import util.Session;
 
-
 import java.time.LocalDate;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class DashboardView {
-
+  TableView<Event> table = new TableView<>();
+  ObservableList<Event> observableItems;
   Map<String, Integer> dayMap = Map.of(
       "Mon", 1,
       "Tue", 2,
@@ -54,7 +58,7 @@ public class DashboardView {
     return col;
   }
 
-  private TableColumn<Event, Void> createActionColumn() {
+  private TableColumn<Event, Void> createActionColumn(Runnable onRefresh) {
     TableColumn<Event, Void> actionCol = new TableColumn<>("Action");
 
       actionCol.setCellFactory(_ -> new TableCell<>() {
@@ -115,9 +119,9 @@ public class DashboardView {
               if (isBookingExecuted) {
                 try {
                   BookingController.createSingleBooking(item.event, item.day, amount, item.price * amount, Session.getCurrentUser());
+                  renderTable();
                   AlertUtil.notification("success", "Successfully booked", "You have successfully booked " + item.event + ". Total ticket(s): " + amount +  " x tickets.");
                   EventController.updateQuantity(item.getId(), amount);
-                  updated
                 } catch (Exception e) {
                   throw new RuntimeException(e);
                 }
@@ -148,36 +152,92 @@ public class DashboardView {
     return actionCol;
   }
 
-  public Scene getScene(User user) throws Exception {
-    List<Event> events = EventController.seedFromFileIfTableMissing("events.dat");
-    var updatedEevents = new ArrayList<Event>();
-    TableView<Event> table = new TableView<>();
+  public void renderTable() throws Exception {
+    List<Event> events = EventController.getAllEvents();
+    if (events.size() == 0) {
+      events = EventController.seedFromFileIfTableMissing("events.dat");
+    }
+    observableItems = FXCollections.observableList(events);
+    table.getColumns().clear();
     table.setEditable(true);
-    VBox root = new VBox(10);
-      table.getColumns().addAll(
-          createColumn("Event", d -> d.event),
-          createColumn("Venue", d -> d.venue),
-          createColumn("Day", d -> d.day),
-          createColumn("Price", d -> String.valueOf(d.price)),
-          createColumn("Total", d -> String.valueOf(d.total)),
-          createColumn("Remaining", d -> String.valueOf(d.remaining)),
-          createActionColumn()
-      );
+    table.getColumns().addAll(
+      createColumn("Event", d -> d.event),
+      createColumn("Venue", d -> d.venue),
+      createColumn("Day", d -> d.day),
+      createColumn("Price", d -> String.valueOf(d.price)),
+      createColumn("Total", d -> String.valueOf(d.total)),
+      createColumn("Remaining", d -> String.valueOf(d.remaining)),
+      createActionColumn(() -> {
+        try {
+          List<Event> refreshedEvents = EventController.getAllEvents();
+          observableItems.setAll(refreshedEvents);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      })
+    );
+    table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+  }
 
-      ObservableList<Event> observableItems = FXCollections.observableList(events);
-      table.setPrefWidth(650);
-      table.setPrefHeight(400);
+  public Scene getScene(User user, Stage stage) throws Exception {
+    StackPane mainContent = new StackPane();
+    Button logoutBtn = new Button("Logout");
+
+    BorderPane mainLayout = new BorderPane();
+    mainLayout.setCenter(mainContent);
+    renderTable();
+    VBox topHeader = new VBox(10,
+      new Label("Welcome, " + user.getUsername() + "!"),
+      new Text("Dashboard loaded successfully.")
+    );
+    topHeader.setPadding(new Insets(10));
+    Button dashboardBtn = new Button("Dashboard");
+    Button bookingsBtn = new Button("My previous orders");
+
+    dashboardBtn.setOnAction(_-> {
+      try {
+        renderTable();
+        stage.setTitle("Dashboard");
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      mainContent.getChildren().setAll(table);
+    });
+
+    bookingsBtn.setOnAction(_ -> {
+      Node bookings;
+      try {
+        bookings = new PastOrderView().getScene();
+        stage.setTitle("Your Past Orders");
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      mainContent.getChildren().setAll(bookings);
+    });
+
+    logoutBtn.setOnAction(_ -> {
+      try {
+        Stage logoutStage = (Stage) logoutBtn.getScene().getWindow();
+        stage.setTitle("Login");
+        new LoginView().start(logoutStage);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
+
+    VBox sidebar = new VBox(10, dashboardBtn, bookingsBtn, logoutBtn);
+
+    mainLayout.setTop(topHeader);
+    mainLayout.setLeft(sidebar);
+
+    sidebar.setPadding(new Insets(10));
+
+    mainContent.getChildren().add(table);
+
       table.setMaxWidth(800);
+      table.setMaxHeight(400);
       table.setItems(observableItems);
 
-      root.setPadding(new Insets(20, 40, 20, 40));
-      root.getChildren().addAll(
-          new Label("Welcome, " + user.getUsername() + "!"),
-          new Text("Dashboard loaded successfully."),
-          table
-      );
-
-
-    return new Scene(root, 900, 900);
+    return new Scene(mainLayout, 1000, 500);
   }
 }

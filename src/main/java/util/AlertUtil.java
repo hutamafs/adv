@@ -23,7 +23,7 @@ public class AlertUtil {
     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
     alert.setTitle("Price and Quantity Confirmation");
     alert.setHeaderText(null);
-    alert.setContentText("Are you sure you want to book " + event.event + "buying " + amount + " tickets for $ " + event.price * amount + "?");
+    alert.setContentText("Are you sure you want to book " + event.event + " buying " + amount + " tickets for $ " + event.price * amount + "?");
     Optional<ButtonType> result = alert.showAndWait();
 
     if (result.isPresent() && result.get() == ButtonType.YES) {

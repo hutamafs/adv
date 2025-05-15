@@ -1,28 +1,40 @@
 package dao;
 
+import model.Booking;
 import util.DatabaseManager;
 import util.DbUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class BookingDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
-//  public List<Event> getAllBookings() throws SQLException {
-//    List<Event> events = new ArrayList<Event>();
-//    String sql = "select * from bookings";
-//
-//    try (PreparedStatement ps = conn.prepareStatement(sql);
-//      ResultSet rs = ps.executeQuery())
-//    {
-//      while (rs.next()) {
-//        events.add(EventFactory.createFromResultSet(rs));
-//      }
-//    }
-//    return events;
-//  }
+  public List<Booking> getPreviousBookings(int userId) throws SQLException {
+    List<Booking> bookings = new ArrayList<>();
+    String sql = "select * from bookings where userId = ? order by createdAt desc";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, userId);
+      ResultSet rs = ps.executeQuery(); {
+        int count = 1;
+        while (rs.next()) {
+          int id = count++;
+          String event = rs.getString("event");
+          Date createdAt = rs.getDate("createdAt");
+          int quantity = rs.getInt("quantity");
+          int total = rs.getInt("total");
+          bookings.add(new Booking(id, event, createdAt, quantity, total));
+        }
+      }
+    }
+    return bookings;
+  }
 
   public void createBookingTable() {
     String sql = "CREATE TABLE IF NOT EXISTS bookings (" +

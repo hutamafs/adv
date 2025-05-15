@@ -55,8 +55,9 @@ public class LoginView extends Application {
         User user = LoginController.login(enteredUsername, enteredPassword);
         Session.setCurrentUser(user.getUserId());
         DashboardView dashboardView = new DashboardView();
-        Scene dashboardScene = dashboardView.getScene(user);
+        Scene dashboardScene = dashboardView.getScene(user, primaryStage);
         primaryStage.setScene(dashboardScene);
+        primaryStage.setTitle("Dashboard");
       } catch (AuthenticationException e){
           resultLabel.setText(e.getMessage());
       } catch (Exception e) {
@@ -71,6 +72,8 @@ public class LoginView extends Application {
 
     // Set the title of the window.
     primaryStage.setTitle("Login Form App");
+
+    primaryStage.centerOnScreen();
 
     // Show the window.
     primaryStage.show();

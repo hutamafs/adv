@@ -28,6 +28,10 @@ public class EventFactory {
     int price = rs.getInt("price");
     int sold = rs.getInt("sold");
     int total = rs.getInt("total");
+    if (id == 6) {
+      System.out.println("rebough");
+      System.out.println(sold);
+    }
 
     return new Event(id, event, venue, day, price, sold, total);
   }
