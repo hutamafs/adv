@@ -18,8 +18,8 @@ public class CartController {
     return dao.getEventRemainingQuantity(eventId);
   }
 
-  public static int getCurrentCartQuantity(int cartId) throws SQLException {
-    return dao.getCurrentCartQuantity(cartId, Session.getCurrentUser());
+  public static int getCurrentCartQuantity(int eventId) throws SQLException {
+    return dao.getCurrentCartQuantity(eventId, Session.getCurrentUser());
   }
 
   public static List<Cart> getCartForUser() throws Exception {
@@ -59,7 +59,6 @@ public class CartController {
   public static boolean addToCart(int eventId, int quantity) throws Exception {
     int currentCartQty = getCurrentCartQuantity(eventId);
     int remaining = dao.getEventRemainingQuantity(eventId);
-
     if (currentCartQty + quantity > remaining) {
       return false;
     }
