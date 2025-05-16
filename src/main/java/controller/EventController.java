@@ -14,7 +14,7 @@ public class EventController {
   }
 
   public static List<Event> seedFromFileIfTableMissing(String path) throws Exception {
-    System.out.println("created");
+    System.out.println("event table created");
     dao.createEventTable();
     if (dao.getAllEvents().isEmpty()) {
       List<Event> events = EventLoader.loadFromFile(path);
@@ -23,8 +23,11 @@ public class EventController {
     return getAllEvents();
   }
 
-  public static void updateQuantity(int id, int amount) throws Exception {
-    dao.updateQuantity(id, amount);
+  public static void updateQuantity(int eventId, int amount) throws Exception {
+    System.out.println(eventId);
+    System.out.println(amount);
+    System.out.println(29);
+    dao.updateQuantity(eventId, amount);
   }
 
   public static List<Event> getAllEvents() throws Exception  {

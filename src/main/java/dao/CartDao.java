@@ -42,8 +42,10 @@ public class CartDao {
     List<Cart> carts = new ArrayList<>();
     String sql = "SELECT \n" +
         "  carts.id AS id,\n" +
+        "  events.id AS eventId,\n" +
         "  events.event AS event,\n" +
         "  events.venue AS venue,\n" +
+        "  events.day AS day,\n" +
         "  events.price AS price,\n" +
         "  events.remaining AS remaining,\n" +
         "  carts.quantity AS quantity\n" +
@@ -56,12 +58,14 @@ public class CartDao {
       ResultSet rs = ps.executeQuery(); {
         while (rs.next()) {
           int id = rs.getInt("id");
+          int eventId = rs.getInt("eventId");
           String event = rs.getString("event");
           String venue = rs.getString("venue");
+          String day = rs.getString("day");
           int price = rs.getInt("price");
           int quantity = rs.getInt("quantity");
           int remaining = rs.getInt("remaining");
-          carts.add(new Cart(id, event, venue, price, quantity, remaining));
+          carts.add(new Cart(id, event, venue, price, quantity, remaining, day, eventId));
         }
       }
     }
@@ -132,14 +136,16 @@ public class CartDao {
     return false;
   }
 
-  public void clearCart(int userId) throws Exception {
+  public boolean clearCart(int userId) throws Exception {
     String sql = "DELETE FROM carts WHERE userId = ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setInt(1, userId);
       stmt.executeUpdate();
       System.out.println("Cart removed");
+      return true;
     } catch (SQLException e) {
       DbUtil.handleSqlError(e);
     }
+    return false;
   }
 }

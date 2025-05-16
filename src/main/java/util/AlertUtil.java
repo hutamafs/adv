@@ -18,12 +18,12 @@ public class AlertUtil {
     alert.showAndWait();
   }
 
-  public static boolean showPriceConfirmation(Event event, int amount) {
+  public static boolean showPriceConfirmation(int quantity, int amount) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
     alert.setTitle("Price and Quantity Confirmation");
     alert.setHeaderText(null);
-    alert.setContentText("Are you sure you want to book " + event.event + " buying " + amount + " tickets for $ " + event.price * amount + "?");
+    alert.setContentText("Checkout " + quantity + " tickets with total amount $" + amount +  "?");
     Optional<ButtonType> result = alert.showAndWait();
 
     if (result.isPresent() && result.get() == ButtonType.YES) {

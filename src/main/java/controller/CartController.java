@@ -14,8 +14,8 @@ public class CartController {
     dao.createCartTable();
   }
 
-  public static int getEventRemainingQuantity(int id) throws SQLException {
-    return dao.getEventRemainingQuantity(id);
+  public static int getEventRemainingQuantity(int eventId) throws SQLException {
+    return dao.getEventRemainingQuantity(eventId);
   }
 
   public static int getCurrentCartQuantity(int cartId) throws SQLException {
@@ -27,7 +27,7 @@ public class CartController {
 
     // re adjust cart quantity to make sure the quantity in the cart mirrors whatever amount is available at the database
     for (Cart cart : carts) {
-      int remaining = getEventRemainingQuantity(cart.getId());
+      int remaining = getEventRemainingQuantity(cart.getEventId());
 
       if (remaining < cart.getQuantity()) {
         cart.setQuantity(remaining);
@@ -37,6 +37,19 @@ public class CartController {
       }
     }
     return carts;
+  }
+
+  public static int[] getCartTotals() throws Exception {
+    int totalQ = 0;
+    int totalAmount = 0;
+
+    List<Cart> carts = getCartForUser();
+
+    for (Cart cart : carts) {
+      totalQ += cart.getQuantity();
+      totalAmount += cart.getQuantity() * cart.getPrice();
+    }
+    return new int[]{totalQ, totalAmount};
   }
 
   public static boolean addToCart(int eventId, int quantity) throws Exception {
@@ -59,7 +72,7 @@ public class CartController {
     return dao.removeFromCart(cartId);
   }
 
-  public static void clearCart() throws Exception {
-    dao.clearCart(Session.getCurrentUser());
+  public static boolean clearCart() throws Exception {
+    return dao.clearCart(Session.getCurrentUser());
   }
 }

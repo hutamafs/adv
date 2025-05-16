@@ -1,6 +1,8 @@
 package view;
 
+import controller.BookingController;
 import controller.CartController;
+import controller.EventController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,33 +14,31 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import model.Cart;
 import util.AlertUtil;
+import util.Session;
 
 import java.util.List;
 import java.util.function.Function;
 
 public class CartView {
-  private TableView<Cart> table;
+  private final TableView<Cart> table;
   private ObservableList<Cart> observableItems;
-  private BorderPane mainLayout;
-  private Label emptyLabel;
+  private final BorderPane mainLayout;
+  private final Label emptyLabel;
+  private final Button checkoutBtn = new Button("Checkout");
 
   public CartView() {
-    // Initialize components
     table = new TableView<>();
     mainLayout = new BorderPane();
     emptyLabel = new Label("You do not have anything in the cart.");
     emptyLabel.setPadding(new Insets(20));
   }
 
-  /**
-   * Adjusts the quantity in the text field within specified bounds
-   */
   private void adjustAmount(TextField field, Cart item, int delta) {
     try {
       int updated = Math.min(Math.max(1, Integer.parseInt(field.getText()) + delta), item.getRemaining());
       field.setText(String.valueOf(updated));
 
-      // Update cart quantity in database when adjusting with buttons
+      // update cart quantity in database when adjusting with buttons
       CartController.updateCartQuantity(item.getId(), updated);
     } catch (NumberFormatException e) {
       field.setText("1");
@@ -47,9 +47,6 @@ public class CartView {
     }
   }
 
-  /**
-   * Creates a column with action buttons for quantity adjustment and removal
-   */
   private TableColumn<Cart, Void> createActionColumn() {
     TableColumn<Cart, Void> actionCol = new TableColumn<>("");
 
@@ -122,6 +119,33 @@ public class CartView {
             }
           }
         });
+
+        checkoutBtn.setOnAction(_ -> {
+          try {
+            int[] totals = CartController.getCartTotals();
+            boolean isBookingExecuted = AlertUtil.showPriceConfirmation(totals[0], totals[1]);
+            if (isBookingExecuted) {
+              List<Cart> carts= CartController.getCartForUser();
+              for ( Cart item: carts) {
+                BookingController.createSingleBooking(
+                    item.getEventName(),
+                    item.getDay(),
+                    item.getQuantity(),
+                    item.getQuantity() * item.getPrice(),
+                    Session.getCurrentUser()
+                );
+                EventController.updateQuantity(item.getEventId(), item.getQuantity());
+              }
+              boolean isRemoved = CartController.clearCart();
+              if (isRemoved) {
+                refreshCart();
+                AlertUtil.notification("success", "Purchased", "You have successfully checked out");
+              }
+            }
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
       }
 
       @Override
@@ -144,24 +168,19 @@ public class CartView {
     return actionCol;
   }
 
-  /**
-   * Creates a table column with the given title and data extractor
-   */
   private TableColumn<Cart, String> createColumn(String title, Function<Cart, String> extractor) {
     TableColumn<Cart, String> col = new TableColumn<>(title);
     col.setCellValueFactory(data -> new ReadOnlyStringWrapper(extractor.apply(data.getValue())));
     return col;
   }
 
-  /**
-   * Refreshes the cart contents and updates the UI accordingly
-   */
+  // func to refresh cart once it is removed or checked out
   private void refreshCart() {
     try {
       List<Cart> cart = CartController.getCartForUser();
       observableItems.setAll(cart);
 
-      // Check if cart is empty and update the view accordingly
+      // check if cart is empty and update the view accordingly
       if (cart.isEmpty()) {
         showEmptyCart();
       }
@@ -170,55 +189,46 @@ public class CartView {
     }
   }
 
-  /**
-   * Shows the empty cart message
-   */
+  // show empty cart
   private void showEmptyCart() {
     mainLayout.setCenter(emptyLabel);
   }
 
-  /**
-   * Shows the cart table with items
-   */
+  // show table
   private void showCartTable() {
-    HBox buttonContainer = new HBox(new Button("Checkout"));
+    HBox buttonContainer = new HBox(checkoutBtn);
     buttonContainer.setAlignment(Pos.BOTTOM_LEFT);
     VBox content = new VBox(10, table, buttonContainer);
     mainLayout.setCenter(content);
   }
 
-  /**
-   * Sets up the table columns and data
-   */
   private void setupTable(List<Cart> cart) {
     // Clear existing columns to prevent duplicates on refresh
     table.getColumns().clear();
 
     table.setEditable(true);
     table.getColumns().addAll(
-            createColumn("Event", Cart::getEventName),
-            createColumn("Venue", Cart::getVenue),
-            createColumn("Price", c -> String.valueOf(c.getPrice())),
-            createColumn("Quantity", c -> String.valueOf(c.getQuantity())),
-            createColumn("Total Price", c -> String.valueOf(c.getQuantity() * c.getPrice())),
-            createColumn("Remaining", c -> String.valueOf(c.getRemaining())),
-            createActionColumn()
+      createColumn("Event", Cart::getEventName),
+      createColumn("Venue", Cart::getVenue),
+      createColumn("Price", c -> String.valueOf(c.getPrice())),
+      createColumn("Quantity", c -> String.valueOf(c.getQuantity())),
+      createColumn("Total Price", c -> String.valueOf(c.getQuantity() * c.getPrice())),
+      createColumn("Remaining", c -> String.valueOf(c.getRemaining())),
+      createActionColumn()
     );
 
-    table.setMaxWidth(750);
+    table.setMaxWidth(800);
     table.setMaxHeight(250);
     table.setItems(observableItems);
   }
 
-  /**
-   * Builds and returns the main cart view
-   */
+  // main cart view
   public BorderPane getScene() throws Exception {
-    // Load cart data
+    // load cart data
     List<Cart> cart = CartController.getCartForUser();
     observableItems = FXCollections.observableArrayList(cart);
 
-    // Setup the table if we have items
+    // setup the table if we have items
     if (!cart.isEmpty()) {
       setupTable(cart);
       showCartTable();
