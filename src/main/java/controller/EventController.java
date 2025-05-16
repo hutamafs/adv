@@ -24,9 +24,6 @@ public class EventController {
   }
 
   public static void updateQuantity(int eventId, int amount) throws Exception {
-    System.out.println(eventId);
-    System.out.println(amount);
-    System.out.println(29);
     dao.updateQuantity(eventId, amount);
   }
 

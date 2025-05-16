@@ -87,10 +87,6 @@ public class EventDao {
   }
 
   public void updateQuantity(int eventId, int quantity) throws Exception {
-    System.out.println(90);
-    System.out.println(eventId);
-    System.out.println(quantity);
-    System.out.println(93);
     String sql = " UPDATE events SET sold = sold + ?, remaining = remaining - ? WHERE id = ? ";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setInt(1, quantity);

@@ -49,13 +49,14 @@ public class CartView {
 
   private TableColumn<Cart, Void> createActionColumn() {
     TableColumn<Cart, Void> actionCol = new TableColumn<>("");
+    actionCol.setPrefWidth(200);
 
     actionCol.setCellFactory(_ -> new TableCell<>() {
       private final TextField amountField = new TextField("1");
       private final Button addBtn = new Button("+");
       private final Button minusBtn = new Button("-");
       private final Button removeBtn = new Button("Remove");
-      final HBox hbox = new HBox(5, minusBtn, amountField, addBtn, removeBtn);
+      final HBox hbox = new HBox(8, minusBtn, amountField, addBtn, removeBtn);
 
       {
         setupAmountField();

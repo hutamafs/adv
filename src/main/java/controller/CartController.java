@@ -19,7 +19,7 @@ public class CartController {
   }
 
   public static int getCurrentCartQuantity(int cartId) throws SQLException {
-    return dao.getCurrentCartQuantity(cartId);
+    return dao.getCurrentCartQuantity(cartId, Session.getCurrentUser());
   }
 
   public static List<Cart> getCartForUser() throws Exception {
@@ -29,7 +29,11 @@ public class CartController {
     for (Cart cart : carts) {
       int remaining = getEventRemainingQuantity(cart.getEventId());
 
-      if (remaining < cart.getQuantity()) {
+      if (remaining == 0) {
+        removeFromCart(cart.getId());
+        carts.remove(cart);
+        AlertUtil.notification("warning", "Item removed", String.format("'%s' is sold out. This item has been removed", cart.getEventName()));
+      } else if (remaining < cart.getQuantity()) {
         cart.setQuantity(remaining);
         updateCartQuantity(cart.getId(), remaining);
 

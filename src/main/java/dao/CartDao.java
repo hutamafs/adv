@@ -14,8 +14,8 @@ import java.util.List;
 public class CartDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
-  public int getCurrentCartQuantity(int eventId) throws SQLException {
-    String sql = "SELECT quantity FROM carts WHERE eventId = ?";
+  public int getCurrentCartQuantity(int eventId, int userId) throws SQLException {
+    String sql = "SELECT quantity FROM carts WHERE eventId = ? and UserId = ?";
     PreparedStatement ps = conn.prepareStatement(sql);
     ps.setInt(1, eventId);
     ResultSet rs = ps.executeQuery();
