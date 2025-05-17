@@ -52,12 +52,17 @@ public class LoginView extends Application {
       String enteredPassword = passwordField.getText();
 
       try {
+        DashboardView dashboardView = new DashboardView();
+        AdminView adminView = new AdminView();
         User user = LoginController.login(enteredUsername, enteredPassword);
         Session.setCurrentUser(user.getUserId());
-        DashboardView dashboardView = new DashboardView();
-        Scene dashboardScene = dashboardView.getScene(user, primaryStage);
-        primaryStage.setScene(dashboardScene);
-        primaryStage.setTitle("Dashboard");
+        if (user.isAdmin()) {
+          primaryStage.setTitle("Admin Dashboard");
+          primaryStage.setScene(adminView.getScene(user, primaryStage));
+        } else {
+          primaryStage.setScene(dashboardView.getScene(user, primaryStage));
+          primaryStage.setTitle("User Dashboard");
+        }
       } catch (AuthenticationException e){
           resultLabel.setText(e.getMessage());
       } catch (Exception e) {

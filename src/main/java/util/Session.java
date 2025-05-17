@@ -1,7 +1,5 @@
 package util;
 
-import model.User;
-
 public class Session {
   private static int currentLoggedInUserId;
 

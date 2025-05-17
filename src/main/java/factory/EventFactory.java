@@ -16,7 +16,7 @@ public class EventFactory {
     int price = Integer.parseInt(parts[3].trim());
     int sold = Integer.parseInt(parts[4].trim());
     int total = Integer.parseInt(parts[5].trim());
-    int remaining = total - sold
+    int remaining = total - sold;
 ;
     return new Event(event, venue, day, price, sold, total, remaining);
   }
@@ -30,7 +30,8 @@ public class EventFactory {
     int sold = rs.getInt("sold");
     int total = rs.getInt("total");
     int remaining = total - sold;
+    boolean isDisabled = rs.getBoolean("isDisabled");
 
-    return new Event(id, event, venue, day, price, sold, total, remaining);
+    return new Event(id, event, venue, day, price, sold, total, remaining, isDisabled);
   }
 }

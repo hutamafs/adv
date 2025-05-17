@@ -17,37 +17,30 @@ public class User {
     this.isAdmin = isAdmin;
   }
 
-  // getter
-  public String getUsername() {
-    return this.username;
-  }
   public int getUserId() {
-    return this.id;
+    return id;
   }
 
-  // isAdmin
+  public String getUsername() {
+    return username;
+  }
+
   public boolean isAdmin() {
     return isAdmin;
   }
 
-  // setter
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
   }
 
   @Override
   public String toString() {
     return "User{" +
-        "id=" + id +
-        ", username='" + username + '\'' +
-        ", email='" + email + '\'' +
-        ", phone='" + phone + '\'' +
-        ", isAdmin=" + isAdmin +
-        '}';
+            "id=" + id +
+            ", username='" + username + '\'' +
+            ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
+            ", isAdmin=" + isAdmin +
+            '}';
   }
-
 }

@@ -50,7 +50,8 @@ public class EventDao {
         "price Integer NOT NULL CHECK (price <> '')," +
         "sold Integer NOT NULL CHECK (sold <> '')," +
         "total Integer NOT NULL CHECK (total <> '')," +
-        "remaining INTEGER NOT NULL CHECK (remaining <> '')" +
+        "remaining INTEGER NOT NULL CHECK (remaining <> '')," +
+        "isDisabled boolean NOT NULL CHECK (isDisabled <> '')" +
         ");";
     try {
       conn.createStatement().execute(sql);
@@ -61,20 +62,21 @@ public class EventDao {
 
   public void bulkInsertEvent(List<Event> events) throws Exception {
     String sql = """
-      INSERT INTO events(event, venue, day, price, sold, total , remaining )
-      values (?,?,?,?,?,?,?)
+      INSERT INTO events(event, venue, day, price, sold, total , remaining , isDisabled)
+      values (?,?,?,?,?,?,?,?)
     """;
 
     try {
       PreparedStatement stmt = conn.prepareStatement(sql);
       for (Event e : events) {
-        stmt.setString(1, e.event);
-        stmt.setString(2, e.venue);
-        stmt.setString(3, e.day);
-        stmt.setInt(4, e.price);
-        stmt.setInt(5, e.sold);
-        stmt.setInt(6, e.total);
-        stmt.setInt(7, e.remaining);
+        stmt.setString(1, e.getEventName());
+        stmt.setString(2, e.getVenue());
+        stmt.setString(3, e.getDay());
+        stmt.setInt(4, e.getPrice());
+        stmt.setInt(5, e.getSold());
+        stmt.setInt(6, e.getTotal());
+        stmt.setInt(7, e.getRemaining());
+        stmt.setBoolean(8, e.getDisabled());
         stmt.addBatch();
       }
 

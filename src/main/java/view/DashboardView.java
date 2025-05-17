@@ -21,7 +21,6 @@ import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
-import util.Session;
 
 import java.time.LocalDate;
 
@@ -44,7 +43,7 @@ public class DashboardView {
 
   private void adjustAmount(TextField field, Event item, int delta) {
     try {
-      int updated = Math.min(Math.max(1, Integer.parseInt(field.getText()) + delta), item.remaining);
+      int updated = Math.min(Math.max(1, Integer.parseInt(field.getText()) + delta), item.getRemaining());
       field.setText(String.valueOf(updated));
     } catch (NumberFormatException e) {
       field.setText("1");
@@ -84,10 +83,10 @@ public class DashboardView {
             Event item = getTableView().getItems().get(getIndex());
             try {
               int input = Integer.parseInt(amountField.getText());
-              if (input > item.remaining) {
+              if (input > item.getRemaining()) {
                 AlertUtil.notification("warning", "Invalid Booking", "You cannot book more tickets than remaining available tickets.");
               }
-              int clamped = Math.max(1, Math.min(input, item.remaining));
+              int clamped = Math.max(1, Math.min(input, item.getRemaining()));
               amountField.setText(String.valueOf(clamped));
             } catch (NumberFormatException e) {
               amountField.setText("1");
@@ -114,11 +113,11 @@ public class DashboardView {
           if (item != null) {
             try {
               int amount = Integer.parseInt(amountField.getText());
-              boolean isAddToCartExecuted = CartController.addToCart(item.id, amount);
+              boolean isAddToCartExecuted = CartController.addToCart(item.getId(), amount);
               if (isAddToCartExecuted) {
                 AlertUtil.notification("success", "Added to Cart", "Event has been added to cart.");
               } else {
-                int currentQty = CartController.getCurrentCartQuantity(item.id);
+                int currentQty = CartController.getCurrentCartQuantity(item.getId());
                 AlertUtil.notification("warning", "not enough seats", "You have " + currentQty + " seats at your cart. Event does have not enough seats to add to the cart");
               }
             } catch (Exception e) {
@@ -137,9 +136,9 @@ public class DashboardView {
         }
 
         final Event event = getTableView().getItems().get(getIndex());
-        if (event.remaining == 0) {
+        if (event.getRemaining() == 0) {
           setGraphic(soldOutLabel);
-        } else if (dayMap.get(event.day) < LocalDate.now().getDayOfWeek().getValue()){
+        } else if (dayMap.get(event.getDay()) < LocalDate.now().getDayOfWeek().getValue()){
           setGraphic(pastDayLabel);
         } else {
           setGraphic(hbox);
@@ -161,12 +160,12 @@ public class DashboardView {
     table.getColumns().clear();
     table.setEditable(true);
     table.getColumns().addAll(
-            createColumn("Event", d -> d.event),
-            createColumn("Venue", d -> d.venue),
-            createColumn("Day", d -> d.day),
-            createColumn("Price", d -> String.valueOf(d.price)),
-            createColumn("Total", d -> String.valueOf(d.total)),
-            createColumn("Remaining", d -> String.valueOf(d.remaining)),
+            createColumn("Event", d -> d.getEventName()),
+            createColumn("Venue", d -> d.getVenue()),
+            createColumn("Day", d -> d.getDay()),
+            createColumn("Price", d -> String.valueOf(d.getPrice())),
+            createColumn("Total", d -> String.valueOf(d.getTotal())),
+            createColumn("Remaining", d -> String.valueOf(d.getRemaining())),
             createActionColumn(() -> {
               try {
                 List<Event> finalEvents = EventController.getAllEvents();
