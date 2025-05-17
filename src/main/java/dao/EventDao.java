@@ -100,4 +100,17 @@ public class EventDao {
       DbUtil.handleSqlError(e);
     }
   }
+
+  public boolean setEventDisabledByName(String name, boolean disabled) throws Exception {
+    String sql = "UPDATE events SET isDisabled = ? WHERE event = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+      stmt.setBoolean(1, disabled);
+      stmt.setString(2, name);
+      stmt.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      DbUtil.handleSqlError(e);
+    }
+    return false;
+  }
 }

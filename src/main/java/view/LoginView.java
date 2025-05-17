@@ -1,6 +1,6 @@
 package view;
 
-import controller.LoginController;
+import controller.UserController;
 import dao.AuthenticationException;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -54,7 +54,7 @@ public class LoginView extends Application {
       try {
         DashboardView dashboardView = new DashboardView();
         AdminView adminView = new AdminView();
-        User user = LoginController.login(enteredUsername, enteredPassword);
+        User user = UserController.login(enteredUsername, enteredPassword);
         Session.setCurrentUser(user.getUserId());
         if (user.isAdmin()) {
           primaryStage.setTitle("Admin Dashboard");

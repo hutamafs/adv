@@ -30,4 +30,8 @@ public class EventController {
   public static List<Event> getAllEvents() throws Exception  {
     return dao.getAllEvents();
   }
+
+  public static boolean setEventDisabledByName(String name, boolean disabled) throws Exception {
+    return dao.setEventDisabledByName(name, disabled);
+  }
 }

@@ -1,6 +1,7 @@
 package view;
 
 import controller.EventController;
+import controller.UserController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -63,8 +64,23 @@ public class AdminView {
     actionCol.setPrefWidth(100);
 
     actionCol.setCellFactory(_ -> new TableCell<>() {
-      private final Button disableBtn = new Button("Disable");
-      private final HBox hbox = new HBox(8, disableBtn);
+      private final Button toggleBtn = new Button("Disable");
+      private final HBox hbox = new HBox(8, toggleBtn);
+
+      {
+        toggleBtn.setOnAction(e -> {
+          EventGroupRow row = getTableRow().getItem();
+          boolean disable = !row.getDisabled();
+
+          try {
+           boolean isDisabled = EventController.setEventDisabledByName(row.getEventName(), disable);
+           row.setDisabled(disable);
+           getTableView().refresh();
+          } catch (Exception err) {
+            throw new RuntimeException("Failed to update disability", err);
+          }
+        });
+      }
 
       // Helper method to get the associated Event for a row
       private Event getEvent(EventGroupRow row) {
@@ -87,18 +103,20 @@ public class AdminView {
           return;
         }
 
-        EventGroupRow row = getTableRow().getItem();
-        if (row == null) {
-          setGraphic(null);
-          return;
-        }
-
-        Event event = getEvent(row);
-        if (event == null) {
-          setGraphic(null);
-          return;
-        }
-        setGraphic(hbox);
+//        EventGroupRow row = getTableRow().getItem();
+//        if (row == null) {
+//          setGraphic(null);
+//          return;
+//        }
+//
+//        Event event = getEvent(row);
+//        if (event == null) {
+//          setGraphic(null);
+//          return;
+//        }
+        EventGroupRow row = getTableView().getItems().get(getIndex());
+        toggleBtn.setText(row.getDisabled() ? "Enable" : "Disable");
+        setGraphic(toggleBtn);
       }
     });
 
@@ -128,14 +146,17 @@ public class AdminView {
       List<Event> variants = entry.getValue();
 
       String venues = variants.stream()
-              .map(Event::getVenue)
-              .collect(Collectors.joining(", "));
+        .map(Event::getVenue)
+        .collect(Collectors.joining(", "));
 
       String days = variants.stream()
-              .map(Event::getDay)
-              .collect(Collectors.joining(", "));
+        .map(Event::getDay)
+        .collect(Collectors.joining(", "));
 
-      groupedRows.add(new EventGroupRow(title, venues, days));
+      boolean allDisabled = variants.stream()
+        .allMatch(Event::getDisabled);
+
+      groupedRows.add(new EventGroupRow(title, venues, days, allDisabled));
     }
 
     // Update table
@@ -143,53 +164,48 @@ public class AdminView {
     table.getColumns().clear();
     table.setEditable(true);
     table.getColumns().addAll(
-            createColumn("Event", EventGroupRow::getEventName),
-            createColumn("Location and day", row -> {
-              String[] venues = row.getVenue().split(", ");
-              String[] days = row.getDay().split(", ");
-              StringBuilder result = new StringBuilder();
-              for (int i = 0; i < venues.length; i++) {
-                result.append(venues[i]).append(" – ").append(i < days.length ? days[i] : "").append("\n");
-              }
-              return result.toString().trim();
-            }),
-            createActionColumn()
+      createColumn("Event", EventGroupRow::getEventName),
+      createColumn("Location and day", row -> {
+        String[] venues = row.getVenue().split(", ");
+        String[] days = row.getDay().split(", ");
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < venues.length; i++) {
+          result.append(venues[i]).append(" – ").append(i < days.length ? days[i] : "").append("\n");
+        }
+        return result.toString().trim();
+      }),
+      createActionColumn()
     );
     table.setItems(observableItems);
   }
 
-  /**
-   * Creates navigation button with consistent styling
-   */
+  // side buttons
   private Button createNavButton(String text) {
     Button button = new Button(text);
     button.setStyle("-fx-font-size: 14px; -fx-min-width: 120px;");
     return button;
   }
 
-  /**
-   * Creates and returns the main scene for the admin view
-   */
+  // admin scene
   public Scene getScene(User user, Stage stage) throws Exception {
-    // Initialize main layout
+
     BorderPane mainLayout = new BorderPane();
 
-    // Create header
     VBox topHeader = new VBox(10,
-            new Label("Welcome, " + user.getUsername() + "!"),
-            new Text("Dashboard loaded successfully.")
+      new Label("Welcome, " + user.getUsername() + "!"),
+      new Text("Dashboard loaded successfully.")
     );
     topHeader.setPadding(new Insets(10));
 
-    // Create navigation buttons
+    // navigation buttons
     Button dashboardBtn = createNavButton("Dashboard");
     Button ordersBtn = createNavButton("Previous orders");
     Button logoutBtn = createNavButton("Logout");
 
-    // Set up button actions
+    // button actions
     setupButtonActions(dashboardBtn, ordersBtn, logoutBtn, user, stage);
 
-    // Create sidebar
+    // sidebar
     VBox sidebar = new VBox(15, ordersBtn, dashboardBtn, logoutBtn);
     sidebar.setPadding(new Insets(15));
     sidebar.setStyle("-fx-background-color: #f0f0f0;");
@@ -205,13 +221,11 @@ public class AdminView {
     mainContent.getChildren().add(table);
     mainLayout.setCenter(mainContent);
 
-    // Create and return scene
+    // return scene
     return new Scene(mainLayout, 1000, 500);
   }
 
-  /**
-   * Sets up actions for navigation buttons
-   */
+  // actions for sidebar buttons
   private void setupButtonActions(Button dashboardBtn, Button ordersBtn,
                                   Button logoutBtn, User user, Stage stage) {
     // Dashboard button action
@@ -225,7 +239,7 @@ public class AdminView {
       }
     });
 
-    // Bookings button action
+    // previous orders button
     ordersBtn.setOnAction(_ -> {
       try {
         // Implementation for viewing previous orders would go here
@@ -238,11 +252,11 @@ public class AdminView {
       }
     });
 
-    // Logout button action
     logoutBtn.setOnAction(_ -> {
       try {
         Stage logoutStage = (Stage) logoutBtn.getScene().getWindow();
         stage.setTitle("Login");
+        UserController.logout();
         new LoginView().start(logoutStage);
       } catch (Exception e) {
         e.printStackTrace();
