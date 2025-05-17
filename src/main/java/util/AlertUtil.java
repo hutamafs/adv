@@ -18,6 +18,17 @@ public class AlertUtil {
     alert.showAndWait();
   }
 
+  public static boolean confirmDeleteEvent(String name) {
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+    alert.setTitle("Event deletion confirmation");
+    alert.setHeaderText(null);
+    alert.setContentText("Confirm to delete event " + name + "?");
+    Optional<ButtonType> result = alert.showAndWait();
+
+    return result.isPresent() && result.get() == ButtonType.YES;
+  }
+
   public static boolean showPriceConfirmation(int quantity, int amount) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);

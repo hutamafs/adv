@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Event;
 import model.User;
+import util.AlertUtil;
 import util.EventGroupRow;
 
 import java.util.ArrayList;
@@ -25,19 +26,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AdminView {
-  private TableView<EventGroupRow> table;
+  private final TableView<EventGroupRow> table;
   private ObservableList<EventGroupRow> observableItems;
-  private StackPane mainContent;
-
-  private static final Map<String, Integer> DAY_MAP = Map.of(
-    "Mon", 1,
-    "Tue", 2,
-    "Wed", 3,
-    "Thu", 4,
-    "Fri", 5,
-    "Sat", 6,
-    "Sun", 7
-  );
+  private final StackPane mainContent;
 
   public AdminView() {
     table = new TableView<>();
@@ -46,6 +37,46 @@ public class AdminView {
     table.setMaxWidth(600);
     table.setMaxHeight(400);
     table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+  }
+
+  private TableColumn<EventGroupRow, Void> createEditDeleteColumn() {
+    TableColumn<EventGroupRow, Void> col = new TableColumn<>("Action");
+    col.setCellFactory(_ -> new TableCell<>() {
+      private final Button editBtn = new Button("Edit");
+      private final Button deleteBtn = new Button("Delete");
+      private final HBox hbox = new HBox(6, editBtn, deleteBtn);
+
+      {
+        editBtn.setOnAction(e -> {
+          EventGroupRow row = (EventGroupRow) getTableView().getItems().get(getIndex());
+          new EventFormModal(row).show();
+        });
+        deleteBtn.setOnAction(e -> {
+          EventGroupRow row = (EventGroupRow) getTableView().getItems().get(getIndex());
+          try {
+            boolean isConfirmDelete = AlertUtil.confirmDeleteEvent(row.getEventName());
+            if (isConfirmDelete) {
+              boolean isDeleted = EventController.deleteEventByName(row.getEventName());
+              if (isDeleted) {
+                getTableView().getItems().remove(getIndex());
+              }
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        });
+      }
+
+      @Override
+      protected void updateItem(Void item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty) { setGraphic(null);}
+        else {
+          setGraphic(hbox);
+        }
+      }
+    });
+    return col;
   }
 
   /**
@@ -82,19 +113,6 @@ public class AdminView {
         });
       }
 
-      // Helper method to get the associated Event for a row
-      private Event getEvent(EventGroupRow row) {
-        try {
-          List<Event> events = EventController.getAllEvents();
-          return events.stream()
-                  .filter(e -> e.getEventName().equals(row.getEventName()))
-                  .findFirst()
-                  .orElse(null);
-        } catch (Exception e) {
-          throw new RuntimeException("Failed to get event", e);
-        }
-      }
-
       @Override
       protected void updateItem(Void item, boolean empty) {
         super.updateItem(item, empty);
@@ -102,18 +120,6 @@ public class AdminView {
           setGraphic(null);
           return;
         }
-
-//        EventGroupRow row = getTableRow().getItem();
-//        if (row == null) {
-//          setGraphic(null);
-//          return;
-//        }
-//
-//        Event event = getEvent(row);
-//        if (event == null) {
-//          setGraphic(null);
-//          return;
-//        }
         EventGroupRow row = getTableView().getItems().get(getIndex());
         toggleBtn.setText(row.getDisabled() ? "Enable" : "Disable");
         setGraphic(toggleBtn);
@@ -137,7 +143,7 @@ public class AdminView {
 
     // Group events by name
     Map<String, List<Event>> grouped = events.stream()
-            .collect(Collectors.groupingBy(Event::getEventName));
+      .collect(Collectors.groupingBy(Event::getEventName));
 
     // Create event group rows
     List<EventGroupRow> groupedRows = new ArrayList<>();
@@ -174,7 +180,8 @@ public class AdminView {
         }
         return result.toString().trim();
       }),
-      createActionColumn()
+      createActionColumn(),
+      createEditDeleteColumn()
     );
     table.setItems(observableItems);
   }
@@ -203,7 +210,7 @@ public class AdminView {
     Button logoutBtn = createNavButton("Logout");
 
     // button actions
-    setupButtonActions(dashboardBtn, ordersBtn, logoutBtn, user, stage);
+    setupButtonActions(dashboardBtn, ordersBtn, logoutBtn, stage);
 
     // sidebar
     VBox sidebar = new VBox(15, ordersBtn, dashboardBtn, logoutBtn);
@@ -227,7 +234,7 @@ public class AdminView {
 
   // actions for sidebar buttons
   private void setupButtonActions(Button dashboardBtn, Button ordersBtn,
-                                  Button logoutBtn, User user, Stage stage) {
+                                  Button logoutBtn, Stage stage) {
     // Dashboard button action
     dashboardBtn.setOnAction(_ -> {
       try {

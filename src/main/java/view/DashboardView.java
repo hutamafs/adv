@@ -1,6 +1,5 @@
 package view;
 
-import controller.BookingController;
 import controller.CartController;
 import controller.EventController;
 import javafx.beans.property.ReadOnlyStringWrapper;

@@ -34,4 +34,12 @@ public class EventController {
   public static boolean setEventDisabledByName(String name, boolean disabled) throws Exception {
     return dao.setEventDisabledByName(name, disabled);
   }
+
+  public static boolean deleteEventByName(String name) throws Exception {
+    return dao.deleteEventByName(name);
+  }
+
+  public List<Event> getAllEventsByName(String name) throws Exception {
+    return dao.getAllEventsByName(name);
+  }
 }

@@ -113,4 +113,29 @@ public class EventDao {
     }
     return false;
   }
+
+  public boolean deleteEventByName(String eventName) throws Exception {
+    String sql = "DELETE FROM events WHERE event = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+      stmt.setString(1, eventName);
+      stmt.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      DbUtil.handleSqlError(e);
+    }
+    return false;
+  }
+
+  public List<Event> getAllEventsByName(String eventName) throws SQLException {
+    List<Event> result = new ArrayList<>();
+    String sql = "SELECT * FROM events WHERE event = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, eventName);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        result.add(EventFactory.createFromResultSet(rs));
+      }
+    }
+    return result;
+  }
 }
