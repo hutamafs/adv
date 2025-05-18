@@ -4,6 +4,7 @@ import dao.EventDao;
 import model.Event;
 import util.EventLoader;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class EventController {
   }
 
   public static boolean addEvent(String name, String venue, String day, int price, int total) throws Exception {
-    if (dao.isDuplicateEvent(name, venue, day)) {
+    if (dao.isDuplicateEvent(name, venue, day, 0)) {
       throw new IllegalArgumentException("Duplicate event: same name, venue, and day");
     }
     if (price <= 0 || total <= 0) {
@@ -61,12 +62,16 @@ public class EventController {
   }
 
   public static boolean editEvent(int eventId, String name, String venue, String day, int price, int total) throws Exception {
-    if (dao.isDuplicateEvent(name, venue, day)) {
+    if (dao.isDuplicateEvent(name, venue, day, eventId)) {
       throw new IllegalArgumentException("Duplicate event: same name, venue, and day");
     }
     if (price <= 0 || total <= 0) {
       throw new IllegalStateException("Price and total must be positive");
     }
+    if (total < dao.checkEventTotalSold(eventId)) {
+      throw new IllegalStateException("total tickets can not below than total sold");
+    }
     return dao.updateEvent(eventId, venue, day, price, total);
   }
+
 }

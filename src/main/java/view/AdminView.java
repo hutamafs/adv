@@ -6,11 +6,11 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -30,13 +30,12 @@ import java.util.stream.Collectors;
 public class AdminView {
   BorderPane mainLayout = new BorderPane();
   private final TableView<EventGroupRow> table;
-  private final StackPane mainContent;
+
   private final VBox contentBox = new VBox(10);
   private final Button addEventBtn = new Button("Add Event");
 
   public AdminView() {
     table = new TableView<>();
-    mainContent = new StackPane();
 
     table.setMaxWidth(650);
     table.setMaxHeight(400);
@@ -65,15 +64,15 @@ public class AdminView {
                     contentBox.getChildren().setAll(addEventBtn, table);
                     mainLayout.setCenter(contentBox);
                   } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                   }
                 }).show();
               } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
               }
             });
           } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
           }
         });
         deleteBtn.setOnAction(_ -> {
@@ -87,7 +86,7 @@ public class AdminView {
               }
             }
           } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
           }
         });
       }
@@ -249,7 +248,7 @@ public class AdminView {
         renderTable();
         stage.setTitle("Dashboard");
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
 //      contentBox.getChildren().setAll(addEventBtn, table);
 //      contentBox.setPadding(new Insets(10));
@@ -258,15 +257,14 @@ public class AdminView {
 
     // previous orders button
     ordersBtn.setOnAction(_ -> {
+      Node bookings;
       try {
-        // Implementation for viewing previous orders would go here
+        bookings = new UserBookings().getScene();
         stage.setTitle("Previous Orders from Users");
-        Label notImplementedLabel = new Label("Previous orders view is not implemented yet");
-        notImplementedLabel.setStyle("-fx-font-size: 16px;");
-        mainContent.getChildren().setAll(notImplementedLabel);
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
+      mainLayout.setCenter(bookings);
     });
 
     addEventBtn.setOnAction(_ -> {
@@ -276,11 +274,11 @@ public class AdminView {
             renderTable();
             mainLayout.setCenter(contentBox);
           } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
           }
         }).show();
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     });
 
@@ -291,7 +289,7 @@ public class AdminView {
         UserController.logout();
         new LoginView().start(logoutStage);
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     });
   }

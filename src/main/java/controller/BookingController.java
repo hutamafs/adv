@@ -18,4 +18,8 @@ public class BookingController {
   public static List<Booking> getPreviousBookings(int userId) throws Exception {
     return dao.getPreviousBookings(userId);
   }
+
+  public static List<Booking> getAllBookings() throws Exception {
+    return dao.getAllBookings();
+  }
 }

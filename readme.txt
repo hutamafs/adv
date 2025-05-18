@@ -13,7 +13,7 @@ Y Admin display implemented (no duplicate event titles)
 Y Event disable function implemented
 Y Event adding & deletion functions implemented
 Y Event modification function implemented
-N Viewing orders of all users implemented
+Y Viewing orders of all users implemented
 N User password update and encryption implemented
 N Junit test cases included
 Y Design pattern (in addition to MVC) -> Factory pattern and Singleton

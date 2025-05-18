@@ -139,15 +139,17 @@ public class EventDao {
     return result;
   }
 
-  public boolean isDuplicateEvent(String name, String venue, String day) throws SQLException {
+  public boolean isDuplicateEvent(String name, String venue, String day, int eventId) throws SQLException {
     String sql = "SELECT 1 FROM events " +
             "WHERE LOWER(event) = LOWER(?) " +
             "AND LOWER(venue) = LOWER(?) " +
-            "AND LOWER(day) = LOWER(?)";
+            "AND LOWER(day) = LOWER(?) " +
+            "AND id <> ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setString(1, name.toLowerCase().trim());
       stmt.setString(2, venue.toLowerCase().trim());
       stmt.setString(3, day.toLowerCase().trim());
+      stmt.setInt(4, eventId);
       try (ResultSet rs = stmt.executeQuery()) {
         return rs.next();
       }
@@ -210,5 +212,18 @@ public class EventDao {
       DbUtil.handleCreateEventError(e);
     }
     return false;
+  }
+
+  public int checkEventTotalSold(int eventId) throws SQLException {
+    String sql = "SELECT sold FROM events WHERE id = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, eventId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("sold");
+        }
+      }
+    }
+    return 0;
   }
 }

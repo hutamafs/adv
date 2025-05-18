@@ -46,7 +46,7 @@ public class EventFormModal {
     } catch (IllegalArgumentException dupError) {
       AlertUtil.notification("warning", "Duplicate Event", dupError.getMessage());
     } catch (IllegalStateException numError) {
-      AlertUtil.notification("error", "Invalid Input", "Please enter valid numeric values.");
+      AlertUtil.notification("error", "Invalid Input", numError.getMessage());
     } catch (Exception e) {
       e.printStackTrace();
       AlertUtil.notification("error", "Save Failed", e.getMessage());
