@@ -29,13 +29,13 @@ public class EventFormModal {
       int total = Integer.parseInt(totalField.getText());
 
       if (event == null) {
-        // Add new event
+        // add new event
         boolean isAddEventSuccess = EventController.addEvent(name, venue, day, price, total);
         if (isAddEventSuccess) {
           AlertUtil.notification("success", "Saved", "Event added successfully.");
         }
       } else {
-        // Update existing event
+        // update existing event
           EventController.editEvent(event.getId(), name, venue, day, price, total);
         AlertUtil.notification("success", "Updated", "Event updated successfully.");
       }

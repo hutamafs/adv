@@ -1,21 +1,33 @@
 package util;
 
-public class EventGroupRow {
-  private final String event;
-  private final String venue;
-  private final String day;
-  private boolean isDisabled;
+import model.Event;
 
-  public EventGroupRow(String event, String venue, String day, boolean isDisabled) {
-    this.event = event;
-    this.venue = venue;
-    this.day = day;
-    this.isDisabled = isDisabled;
+import java.util.List;
+
+public class EventGroupRow {
+  private String eventName;
+  private List<Event> variants;
+  private boolean disabled;
+
+  public EventGroupRow(String eventName, List<Event> variants, boolean disabled) {
+    this.eventName = eventName;
+    this.variants = variants;
+    this.disabled = disabled;
   }
 
-  public String getEventName() { return event; }
-  public String getVenue() { return venue; }
-  public String getDay() { return day; }
-  public boolean getDisabled() { return isDisabled; }
-  public void setDisabled(boolean isDisabled) { this.isDisabled = isDisabled; }
+  public String getEventName() {
+    return eventName;
+  }
+
+  public List<Event> getVariants() {
+    return variants;
+  }
+
+  public boolean getDisabled() {
+    return disabled;
+  }
+
+  public void setDisabled(boolean disabled) {
+    this.disabled = disabled;
+  }
 }

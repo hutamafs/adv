@@ -151,9 +151,7 @@ public class AdminView {
     return actionCol;
   }
 
-  /**
-   * Loads events and renders them in the table
-   */
+  // fetch all the events and render to the table
   public void renderTable() throws Exception {
     List<Event> events;
     if (!EventController.checkEventTable()) {
@@ -162,7 +160,7 @@ public class AdminView {
       events = EventController.getAllEvents();
     }
 
-    // Group events by name
+    // group events by name
     Map<String, List<Event>> grouped = events.stream()
       .collect(Collectors.groupingBy(Event::getEventName));
 
@@ -172,39 +170,26 @@ public class AdminView {
       String title = entry.getKey();
       List<Event> variants = entry.getValue();
 
-      String venues = variants.stream()
-        .map(Event::getVenue)
-        .collect(Collectors.joining(", "));
-
-      String days = variants.stream()
-        .map(Event::getDay)
-        .collect(Collectors.joining(", "));
-
       boolean allDisabled = variants.stream()
-        .allMatch(Event::getDisabled);
+              .allMatch(Event::getDisabled);
 
-      groupedRows.add(new EventGroupRow(title, venues, days, allDisabled));
+      groupedRows.add(new EventGroupRow(title, variants, allDisabled));
     }
 
-    // Update table
+    // organize the mapping for each row
     ObservableList<EventGroupRow> observableItems = FXCollections.observableList(groupedRows);
     table.getColumns().clear();
     table.setEditable(true);
     table.getColumns().addAll(
             createColumn("Event", row -> StringFormatter.capitalizeEachWord(row.getEventName())),
-      createColumn("Location and day", row -> {
-        String[] venues = row.getVenue().split(", ");
-        String[] days = row.getDay().split(", ");
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < venues.length; i++) {
-          result
-                  .append(StringFormatter.capitalizeEachWord(venues[i]))
-                  .append(" – ")
-                  .append(i < days.length ? StringFormatter.capitalizeEachWord(days[i]) : "")
-                  .append("\n");
-        }
-        return result.toString().trim();
-      }),
+            createColumn("Venue | Day | Sold | Total", row -> {
+              return row.getVariants().stream()
+                      .map(v -> StringFormatter.capitalizeEachWord(v.getVenue()) +
+                              " – " + StringFormatter.capitalizeEachWord(v.getDay()) +
+                              " – " + v.getSold() +
+                              " – " + v.getTotal())
+                      .collect(Collectors.joining("\n"));
+            }),
       createActionColumn(),
       createEditDeleteColumn()
     );
@@ -240,10 +225,10 @@ public class AdminView {
     sidebar.setPadding(new Insets(15));
     sidebar.setStyle("-fx-background-color: #f0f0f0;");
 
-    // Load initial table data
+    // load initial table data
     renderTable();
 
-    // Add components to layout
+    // add components to layout
     mainLayout.setTop(topHeader);
     mainLayout.setLeft(sidebar);
 

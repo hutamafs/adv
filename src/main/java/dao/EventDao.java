@@ -185,8 +185,7 @@ public class EventDao {
   public boolean updateEvent(int eventId, String venue, String day, int price, int total) throws Exception {
     String sql = """
       UPDATE events
-      SET event = ?,
-          venue = ?,
+      SET venue = ?,
           day = ?,
           price = ?,
           total = ?,
