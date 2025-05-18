@@ -18,6 +18,8 @@ import model.Event;
 import model.User;
 import util.AlertUtil;
 import util.EventGroupRow;
+import util.EventVariantSelector;
+import util.StringFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +28,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AdminView {
+  BorderPane mainLayout = new BorderPane();
   private final TableView<EventGroupRow> table;
-  private ObservableList<EventGroupRow> observableItems;
   private final StackPane mainContent;
+  private final VBox contentBox = new VBox(10);
+  private final Button addEventBtn = new Button("Add Event");
 
   public AdminView() {
     table = new TableView<>();
     mainContent = new StackPane();
 
-    table.setMaxWidth(600);
+    table.setMaxWidth(650);
     table.setMaxHeight(400);
     table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
   }
@@ -42,17 +46,38 @@ public class AdminView {
   private TableColumn<EventGroupRow, Void> createEditDeleteColumn() {
     TableColumn<EventGroupRow, Void> col = new TableColumn<>("Action");
     col.setCellFactory(_ -> new TableCell<>() {
+
       private final Button editBtn = new Button("Edit");
       private final Button deleteBtn = new Button("Delete");
       private final HBox hbox = new HBox(6, editBtn, deleteBtn);
 
       {
-        editBtn.setOnAction(e -> {
-          EventGroupRow row = (EventGroupRow) getTableView().getItems().get(getIndex());
-          new EventFormModal(row).show();
+        editBtn.setOnAction(_ -> {
+          EventGroupRow row = getTableView().getItems().get(getIndex());
+          try {
+            List<Event> variants = EventController.getAllEventsByName(row.getEventName());
+            EventVariantSelector.show(variants, selectedEvent -> {
+              try {
+                new EventFormModal(selectedEvent, () -> {
+                  try {
+                    renderTable();
+//                    mainContent.getChildren().setAll(table);
+                    contentBox.getChildren().setAll(addEventBtn, table);
+                    mainLayout.setCenter(contentBox);
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+                }).show();
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
         });
-        deleteBtn.setOnAction(e -> {
-          EventGroupRow row = (EventGroupRow) getTableView().getItems().get(getIndex());
+        deleteBtn.setOnAction(_ -> {
+          EventGroupRow row = getTableView().getItems().get(getIndex());
           try {
             boolean isConfirmDelete = AlertUtil.confirmDeleteEvent(row.getEventName());
             if (isConfirmDelete) {
@@ -79,9 +104,7 @@ public class AdminView {
     return col;
   }
 
-  /**
-   * Creates a table column with the given title and data extractor
-   */
+  // reusable function to create column for table
   private TableColumn<EventGroupRow, String> createColumn(String title, Function<EventGroupRow, String> extractor) {
     TableColumn<EventGroupRow, String> col = new TableColumn<>(title);
     col.setPrefWidth(200);
@@ -96,16 +119,15 @@ public class AdminView {
 
     actionCol.setCellFactory(_ -> new TableCell<>() {
       private final Button toggleBtn = new Button("Disable");
-      private final HBox hbox = new HBox(8, toggleBtn);
 
       {
-        toggleBtn.setOnAction(e -> {
+        toggleBtn.setOnAction(_ -> {
           EventGroupRow row = getTableRow().getItem();
           boolean disable = !row.getDisabled();
 
           try {
-           boolean isDisabled = EventController.setEventDisabledByName(row.getEventName(), disable);
            row.setDisabled(disable);
+           EventController.setEventDisabledByName(row.getEventName(), disable);
            getTableView().refresh();
           } catch (Exception err) {
             throw new RuntimeException("Failed to update disability", err);
@@ -133,7 +155,6 @@ public class AdminView {
    * Loads events and renders them in the table
    */
   public void renderTable() throws Exception {
-    // Get events from controller
     List<Event> events;
     if (!EventController.checkEventTable()) {
       events = EventController.seedFromFileIfTableMissing("events.dat");
@@ -166,17 +187,21 @@ public class AdminView {
     }
 
     // Update table
-    observableItems = FXCollections.observableList(groupedRows);
+    ObservableList<EventGroupRow> observableItems = FXCollections.observableList(groupedRows);
     table.getColumns().clear();
     table.setEditable(true);
     table.getColumns().addAll(
-      createColumn("Event", EventGroupRow::getEventName),
+            createColumn("Event", row -> StringFormatter.capitalizeEachWord(row.getEventName())),
       createColumn("Location and day", row -> {
         String[] venues = row.getVenue().split(", ");
         String[] days = row.getDay().split(", ");
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < venues.length; i++) {
-          result.append(venues[i]).append(" – ").append(i < days.length ? days[i] : "").append("\n");
+          result
+                  .append(StringFormatter.capitalizeEachWord(venues[i]))
+                  .append(" – ")
+                  .append(i < days.length ? StringFormatter.capitalizeEachWord(days[i]) : "")
+                  .append("\n");
         }
         return result.toString().trim();
       }),
@@ -195,8 +220,6 @@ public class AdminView {
 
   // admin scene
   public Scene getScene(User user, Stage stage) throws Exception {
-
-    BorderPane mainLayout = new BorderPane();
 
     VBox topHeader = new VBox(10,
       new Label("Welcome, " + user.getUsername() + "!"),
@@ -224,9 +247,9 @@ public class AdminView {
     mainLayout.setTop(topHeader);
     mainLayout.setLeft(sidebar);
 
-    // Add table to main content area
-    mainContent.getChildren().add(table);
-    mainLayout.setCenter(mainContent);
+    contentBox.getChildren().setAll(addEventBtn, table);
+    contentBox.setPadding(new Insets(10));
+    mainLayout.setCenter(contentBox);
 
     // return scene
     return new Scene(mainLayout, 1000, 500);
@@ -240,10 +263,12 @@ public class AdminView {
       try {
         renderTable();
         stage.setTitle("Dashboard");
-        mainContent.getChildren().setAll(table);
       } catch (Exception e) {
         e.printStackTrace();
       }
+//      contentBox.getChildren().setAll(addEventBtn, table);
+//      contentBox.setPadding(new Insets(10));
+      mainLayout.setCenter(contentBox);
     });
 
     // previous orders button
@@ -254,6 +279,21 @@ public class AdminView {
         Label notImplementedLabel = new Label("Previous orders view is not implemented yet");
         notImplementedLabel.setStyle("-fx-font-size: 16px;");
         mainContent.getChildren().setAll(notImplementedLabel);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
+
+    addEventBtn.setOnAction(_ -> {
+      try {
+        new EventFormModal(null, () -> {
+          try {
+            renderTable();
+            mainLayout.setCenter(contentBox);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }).show();
       } catch (Exception e) {
         e.printStackTrace();
       }

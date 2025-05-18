@@ -69,9 +69,9 @@ public class EventDao {
     try {
       PreparedStatement stmt = conn.prepareStatement(sql);
       for (Event e : events) {
-        stmt.setString(1, e.getEventName());
-        stmt.setString(2, e.getVenue());
-        stmt.setString(3, e.getDay());
+        stmt.setString(1, e.getEventName().toLowerCase().trim());
+        stmt.setString(2, e.getVenue().toLowerCase().trim());
+        stmt.setString(3, e.getDay().toLowerCase().trim());
         stmt.setInt(4, e.getPrice());
         stmt.setInt(5, e.getSold());
         stmt.setInt(6, e.getTotal());
@@ -117,7 +117,7 @@ public class EventDao {
   public boolean deleteEventByName(String eventName) throws Exception {
     String sql = "DELETE FROM events WHERE event = ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-      stmt.setString(1, eventName);
+      stmt.setString(1, eventName.toLowerCase().trim());
       stmt.executeUpdate();
       return true;
     } catch (SQLException e) {
@@ -137,5 +137,79 @@ public class EventDao {
       }
     }
     return result;
+  }
+
+  public boolean isDuplicateEvent(String name, String venue, String day) throws SQLException {
+    String sql = "SELECT 1 FROM events " +
+            "WHERE LOWER(event) = LOWER(?) " +
+            "AND LOWER(venue) = LOWER(?) " +
+            "AND LOWER(day) = LOWER(?)";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+      stmt.setString(1, name.toLowerCase().trim());
+      stmt.setString(2, venue.toLowerCase().trim());
+      stmt.setString(3, day.toLowerCase().trim());
+      try (ResultSet rs = stmt.executeQuery()) {
+        return rs.next();
+      }
+    }
+  }
+
+  public boolean addSingleEvent(String name, String venue, String day, int price, int total) throws Exception {
+    String sql = """
+      INSERT INTO events(event, venue, day, price, sold, total , remaining , isDisabled)
+      values (?,?,?,?,?,?,?,?)
+    """;
+
+    try {
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, name.toLowerCase().trim());
+      stmt.setString(2, venue.toLowerCase().trim());
+      stmt.setString(3, day.toLowerCase().trim());
+      stmt.setInt(4, price);
+      stmt.setInt(5, 0);
+      stmt.setInt(6, total);
+      stmt.setInt(7, total);
+      stmt.setBoolean(8, false);
+      stmt.addBatch();
+
+      stmt.executeBatch();
+      System.out.println("Event added into db");
+      return true;
+    }
+    catch (SQLException e) {
+      DbUtil.handleCreateEventError(e);
+    }
+    return false;
+  }
+
+  public boolean updateEvent(int eventId, String venue, String day, int price, int total) throws Exception {
+    String sql = """
+      UPDATE events
+      SET event = ?,
+          venue = ?,
+          day = ?,
+          price = ?,
+          total = ?,
+          remaining = remaining + ?
+      WHERE id = ? 
+    """;
+
+    try {
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, venue.toLowerCase().trim());
+      stmt.setString(2, day.toLowerCase().trim());
+      stmt.setInt(3, price);
+      stmt.setInt(4, total);
+      stmt.setInt(5, total);
+      stmt.setInt(6, eventId);
+
+      stmt.executeUpdate();
+      System.out.println("Event updated");
+      return true;
+    }
+    catch (SQLException e) {
+      DbUtil.handleCreateEventError(e);
+    }
+    return false;
   }
 }

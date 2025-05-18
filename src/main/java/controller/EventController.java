@@ -5,6 +5,7 @@ import model.Event;
 import util.EventLoader;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EventController {
   final static EventDao dao = new EventDao();
@@ -31,6 +32,12 @@ public class EventController {
     return dao.getAllEvents();
   }
 
+  public static List<Event> getEventsForUser() throws Exception  {
+    return dao.getAllEvents().stream()
+            .filter(event ->  !event.getDisabled())
+            .collect(Collectors.toList());
+  }
+
   public static boolean setEventDisabledByName(String name, boolean disabled) throws Exception {
     return dao.setEventDisabledByName(name, disabled);
   }
@@ -39,7 +46,27 @@ public class EventController {
     return dao.deleteEventByName(name);
   }
 
-  public List<Event> getAllEventsByName(String name) throws Exception {
+  public static List<Event> getAllEventsByName(String name) throws Exception {
     return dao.getAllEventsByName(name);
+  }
+
+  public static boolean addEvent(String name, String venue, String day, int price, int total) throws Exception {
+    if (dao.isDuplicateEvent(name, venue, day)) {
+      throw new IllegalArgumentException("Duplicate event: same name, venue, and day");
+    }
+    if (price <= 0 || total <= 0) {
+      throw new IllegalStateException("Price and total must be positive");
+    }
+    return dao.addSingleEvent(name, venue, day, price, total);
+  }
+
+  public static boolean editEvent(int eventId, String name, String venue, String day, int price, int total) throws Exception {
+    if (dao.isDuplicateEvent(name, venue, day)) {
+      throw new IllegalArgumentException("Duplicate event: same name, venue, and day");
+    }
+    if (price <= 0 || total <= 0) {
+      throw new IllegalStateException("Price and total must be positive");
+    }
+    return dao.updateEvent(eventId, venue, day, price, total);
   }
 }

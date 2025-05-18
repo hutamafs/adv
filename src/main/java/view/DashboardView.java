@@ -20,12 +20,14 @@ import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
+import util.StringFormatter;
 
 import java.time.LocalDate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DashboardView {
   TableView<Event> table = new TableView<>();
@@ -137,7 +139,7 @@ public class DashboardView {
         final Event event = getTableView().getItems().get(getIndex());
         if (event.getRemaining() == 0) {
           setGraphic(soldOutLabel);
-        } else if (dayMap.get(event.getDay()) < LocalDate.now().getDayOfWeek().getValue()){
+        } else if (dayMap.get(StringFormatter.capitalizeEachWord(event.getDay())) < LocalDate.now().getDayOfWeek().getValue()){
           setGraphic(pastDayLabel);
         } else {
           setGraphic(hbox);
@@ -153,26 +155,27 @@ public class DashboardView {
     if (!EventController.checkEventTable()) {
       events = EventController.seedFromFileIfTableMissing("events.dat");
     } else {
-      events = EventController.getAllEvents();
+      events = EventController.getEventsForUser();
     }
+    System.out.println(events.size());
     observableItems = FXCollections.observableList(events);
     table.getColumns().clear();
     table.setEditable(true);
     table.getColumns().addAll(
-            createColumn("Event", d -> d.getEventName()),
-            createColumn("Venue", d -> d.getVenue()),
-            createColumn("Day", d -> d.getDay()),
+            createColumn("Event", d -> StringFormatter.capitalizeEachWord(d.getEventName())),
+            createColumn("Venue", d -> StringFormatter.capitalizeEachWord(d.getVenue())),
+            createColumn("Day", d -> StringFormatter.capitalizeEachWord(d.getDay())),
             createColumn("Price", d -> String.valueOf(d.getPrice())),
             createColumn("Total", d -> String.valueOf(d.getTotal())),
             createColumn("Remaining", d -> String.valueOf(d.getRemaining())),
             createActionColumn(() -> {
-              try {
-                List<Event> finalEvents = EventController.getAllEvents();
-                observableItems.setAll(finalEvents);
-                table.refresh();
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
+//              try {
+//                List<Event> finalEvents = EventController.getAllEvents();
+//                observableItems.setAll(finalEvents);
+//                table.refresh();
+//              } catch (Exception e) {
+//                throw new RuntimeException(e);
+//              }
             })
     );
     table.setItems(observableItems);
