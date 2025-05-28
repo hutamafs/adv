@@ -4,6 +4,7 @@ import dao.CartDao;
 import model.Cart;
 import util.AlertUtil;
 import util.Session;
+import javafx.application.Platform;
 
 import java.sql.SQLException;
 import java.util.List;

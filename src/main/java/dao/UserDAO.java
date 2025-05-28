@@ -14,6 +14,7 @@ public class UserDAO {
   public void createUserTable() {
     String sql = "CREATE TABLE IF NOT EXISTS users (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "name TEXT NOT NULL CHECK (name <> '')," +
         "username TEXT NOT NULL UNIQUE CHECK (username <> '')," +
         "password TEXT NOT NULL CHECK (password <> '')," +
         "email TEXT NOT NULL UNIQUE CHECK (email <> '')," +
@@ -27,18 +28,19 @@ public class UserDAO {
     }
   }
 
-  public boolean createUser(String username, String password, String email, String phone) throws RegistrationException {
+  public boolean createUser(String name, String username, String password, String email, String phone) throws RegistrationException {
     String sql = """
-      INSERT INTO users(username, password, email, phone)
-      values (?,?,?,?)
+      INSERT INTO users(name, username, password, email, phone)
+      values (?,?,?,?,?)
     """;
 
     try {
       PreparedStatement stmt = conn.prepareStatement(sql);
-      stmt.setString(1, username);
-      stmt.setString(2, password);
-      stmt.setString(3, email);
-      stmt.setString(4, phone);
+      stmt.setString(1, name);
+      stmt.setString(2, username);
+      stmt.setString(3, password);
+      stmt.setString(4, email);
+      stmt.setString(5, phone);
       int rowsInserted = stmt.executeUpdate();
       if (rowsInserted > 0) {
         ResultSet rs = stmt.getGeneratedKeys();
@@ -62,12 +64,13 @@ public class UserDAO {
       if (rs.next()) {
         if (rs.getString("password").equals(password)) {
           int id = rs.getInt("id");
+          String name = rs.getString("name");
           String username = rs.getString("username");
           String email = rs.getString("email");
           String phone = rs.getString("phone");
           int isAdmin = rs.getInt("isAdmin");
           boolean isUserAdmin = (isAdmin == 1);
-          return new User(id, username, password, email, phone, isUserAdmin);
+          return new User(id, name, username, password, email, phone, isUserAdmin);
         } else {
           throw new AuthenticationException("Invalid password");
         }

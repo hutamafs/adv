@@ -27,6 +27,7 @@ public class SignupView extends Application {
     });
     vbox.getChildren().add(label);
 
+    Label preferredNameLabel = new Label("Preferred Name:");
     Label usernameLabel = new Label("Username:");
     Label passwordLabel = new Label("Password:");
     Label emailLabel = new Label("Email:");
@@ -34,6 +35,7 @@ public class SignupView extends Application {
     Label resultLabel = new Label();
     resultLabel.setPadding(new Insets(0, 0, 10, 0));
 
+    TextField preferredNameField = new TextField();
     TextField usernameField = new TextField();
     PasswordField passwordField = new PasswordField();
     TextField emailField = new TextField();
@@ -44,13 +46,14 @@ public class SignupView extends Application {
     registerButton.setDefaultButton(true);
     registerButton.setOnAction(_ -> {
       resultLabel.setText("");
+      String enteredName = preferredNameField.getText();
       String enteredUsername = usernameField.getText();
       String enteredPassword = passwordField.getText();
       String enteredEmail = emailField.getText();
       String phoneString = phoneField.getText();
 
       try {
-        boolean registerStatus = RegisterController.register(enteredUsername, enteredPassword, enteredEmail, phoneString);
+        boolean registerStatus = RegisterController.register(enteredName, enteredUsername, enteredPassword, enteredEmail, phoneString);
         if (registerStatus) {
           LoginView loginView = new LoginView();
           loginView.start(primaryStage, true);
@@ -63,7 +66,7 @@ public class SignupView extends Application {
       }
     });
 
-    vbox.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, emailLabel, emailField, phoneLabel, phoneField, registerButton, resultLabel, loginLink);
+    vbox.getChildren().addAll(preferredNameLabel, preferredNameField, usernameLabel, usernameField, passwordLabel, passwordField, emailLabel, emailField, phoneLabel, phoneField, registerButton, resultLabel, loginLink);
 
     Scene scene = new Scene(vbox, 500, 400);
     primaryStage.setScene(scene);

@@ -20,6 +20,7 @@ import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
+import util.Session;
 import util.StringFormatter;
 
 import java.time.LocalDate;
@@ -27,7 +28,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DashboardView {
   TableView<Event> table = new TableView<>();
@@ -157,7 +157,6 @@ public class DashboardView {
     } else {
       events = EventController.getEventsForUser();
     }
-    System.out.println(events.size());
     observableItems = FXCollections.observableList(events);
     table.getColumns().clear();
     table.setEditable(true);
@@ -168,15 +167,7 @@ public class DashboardView {
             createColumn("Price", d -> String.valueOf(d.getPrice())),
             createColumn("Total", d -> String.valueOf(d.getTotal())),
             createColumn("Remaining", d -> String.valueOf(d.getRemaining())),
-            createActionColumn(() -> {
-//              try {
-//                List<Event> finalEvents = EventController.getAllEvents();
-//                observableItems.setAll(finalEvents);
-//                table.refresh();
-//              } catch (Exception e) {
-//                throw new RuntimeException(e);
-//              }
-            })
+            createActionColumn(() -> {})
     );
     table.setItems(observableItems);
     table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
@@ -190,8 +181,7 @@ public class DashboardView {
     mainLayout.setCenter(mainContent);
     renderTable();
     VBox topHeader = new VBox(10,
-      new Label("Welcome, " + user.getUsername() + "!"),
-      new Text("Dashboard loaded successfully.")
+      new Label("Welcome, " + user.getName() + "!")
     );
     topHeader.setPadding(new Insets(10));
     Button dashboardBtn = new Button("Dashboard");

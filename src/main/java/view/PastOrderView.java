@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 
 import util.AlertUtil;
 import util.Session;
+import util.StringFormatter;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -89,7 +90,7 @@ public class PastOrderView {
                 Date adjustedDate = adjustToMelbourneTime(d.createdAt);
                 return formatter.format(adjustedDate);
               }),
-              createColumn("Event and total seats", d -> d.event + " for " + d.quantity + " x seat(s)"),
+              createColumn("Event and total seats", d -> StringFormatter.capitalizeEachWord(d.event + " for " + d.quantity + " x seat(s)")),
               createColumn("Total price", d -> String.valueOf(d.totalPrice))
       );
       HBox buttonContainer = new HBox(exportBtn);

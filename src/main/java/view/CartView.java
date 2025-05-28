@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import model.Cart;
 import util.AlertUtil;
 import util.Session;
+import util.StringFormatter;
 
 import java.util.List;
 import java.util.function.Function;
@@ -209,8 +210,8 @@ public class CartView {
 
     table.setEditable(true);
     table.getColumns().addAll(
-      createColumn("Event", Cart::getEventName),
-      createColumn("Venue", Cart::getVenue),
+      createColumn("Event", c-> StringFormatter.capitalizeEachWord(c.getEventName())),
+      createColumn("Venue", c-> StringFormatter.capitalizeEachWord(c.getVenue())),
       createColumn("Price", c -> String.valueOf(c.getPrice())),
       createColumn("Quantity", c -> String.valueOf(c.getQuantity())),
       createColumn("Total Price", c -> String.valueOf(c.getQuantity() * c.getPrice())),

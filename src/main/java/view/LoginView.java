@@ -56,6 +56,7 @@ public class LoginView extends Application {
         AdminView adminView = new AdminView();
         User user = UserController.login(enteredUsername, enteredPassword);
         Session.setCurrentUser(user.getUserId());
+
         if (user.isAdmin()) {
           primaryStage.setTitle("Admin Dashboard");
           primaryStage.setScene(adminView.getScene(user, primaryStage));
