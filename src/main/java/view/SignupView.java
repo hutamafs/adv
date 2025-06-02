@@ -56,7 +56,7 @@ public class SignupView extends Application {
         boolean registerStatus = UserController.register(enteredName, enteredUsername, enteredPassword, enteredEmail, phoneString);
         if (registerStatus) {
           LoginView loginView = new LoginView();
-          loginView.start(primaryStage, true);
+          loginView.start(primaryStage, true, "Sign up successful");
         }
       } catch (RegistrationException e){
         System.out.println(e);

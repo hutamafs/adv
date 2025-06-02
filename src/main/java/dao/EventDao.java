@@ -202,7 +202,7 @@ public class EventDao {
           day = ?,
           price = ?,
           total = ?,
-          remaining = remaining + ?
+          remaining = ? - (total - remaining)
       WHERE id = ? 
     """;
 

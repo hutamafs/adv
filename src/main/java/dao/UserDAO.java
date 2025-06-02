@@ -40,7 +40,7 @@ public class UserDAO {
     try {
       PreparedStatement stmt = conn.prepareStatement(sql);
       stmt.setString(1, name);
-      stmt.setString(2, username);
+      stmt.setString(2, username.toLowerCase().trim());
       stmt.setString(3, hashedPw);
       stmt.setString(4, email);
       stmt.setString(5, phone);
@@ -83,6 +83,37 @@ public class UserDAO {
       }
     } catch (SQLException e) {
       throw new AuthenticationException("Something went wrong. Please try again.");
+    }
+  }
+
+  public boolean changePassword(String username, String oldPw, String newPw) throws Exception {
+    String sql = "SELECT * FROM users WHERE username = ?";
+    try {
+      System.out.println(username);
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, username.toLowerCase().trim());
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        if (PasswordUtil.matches(rs.getString("password"), oldPw)) {
+          String updateQ = """
+            UPDATE users
+            SET password = ?
+            WHERE username = ?
+          """;
+          PreparedStatement st = conn.prepareStatement(updateQ);
+          st.setString(1, PasswordUtil.obfuscate(newPw));
+          st.setString(2, username);
+          st.executeUpdate();
+        } else {
+          throw new AuthenticationException("Invalid old password");
+        }
+        return true;
+      } else {
+        throw new AuthenticationException("User not found");
+      }
+    }
+    catch (SQLException e) {
+      throw new AuthenticationException("Unexpected error occured. Please try again.");
     }
   }
 }

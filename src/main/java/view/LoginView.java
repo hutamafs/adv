@@ -15,10 +15,10 @@ public class LoginView extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-    start(primaryStage, false);
+    start(primaryStage, false, "");
   }
 
-  public void start(Stage primaryStage, boolean registerStatus)  {
+  public void start(Stage primaryStage, boolean status, String message)  {
     VBox vbox = new VBox(10);
     vbox.setPadding(new Insets(10));
     primaryStage.setTitle("Login Form");
@@ -34,11 +34,20 @@ public class LoginView extends Application {
       }
     });
 
+    Hyperlink changePwLink = new Hyperlink("Do you want to change password?");
+    changePwLink.setOnAction(e -> {
+      try {
+        new ChangePasswordView().start(primaryStage);
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    });
+
     Label usernameLabel = new Label("Username:");
     Label passwordLabel = new Label("Password:");
     Label resultLabel = new Label();
-    if (registerStatus) {
-      resultLabel.setText("Registration successful! Please log in.");
+    if (status) {
+      resultLabel.setText(message);
     }
     resultLabel.setPadding(new Insets(0, 0, 10, 0));
 
@@ -71,7 +80,7 @@ public class LoginView extends Application {
       }
     });
 
-    vbox.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, loginButton, resultLabel, registerLink);
+    vbox.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, loginButton, resultLabel, registerLink, changePwLink);
 
     Scene scene = new Scene(vbox, 500, 400);
     primaryStage.setScene(scene);
