@@ -14,13 +14,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Event;
 import model.User;
 import javafx.geometry.Pos;
 import util.AlertUtil;
-import util.Session;
 import util.StringFormatter;
 
 import java.time.LocalDate;

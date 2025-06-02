@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import java.util.List;
 import java.util.function.Consumer;
 
+/* this class is used by admin, when admin wants to determine which event they are going to edit */
 public class EventVariantSelector {
   public static void show(List<Event> variants, Consumer<Event> onSelected) {
     Stage stage = new Stage();
@@ -32,7 +33,7 @@ public class EventVariantSelector {
     combo.setButtonCell(combo.getCellFactory().call(null));
 
     Button nextBtn = new Button("Next");
-    nextBtn.setOnAction(e -> {
+    nextBtn.setOnAction(_ -> {
       Event selected = combo.getValue();
       if (selected != null) {
         onSelected.accept(selected);

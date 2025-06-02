@@ -1,10 +1,10 @@
 package util;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/* this is another design pattern , singleton instance of db connection */
 public class DatabaseManager {
   private static DatabaseManager instance;
   private Connection connection;

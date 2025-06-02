@@ -15,6 +15,7 @@ import java.util.List;
 public class EventDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
+  /* function to check whether event table exist in the db */
   public boolean checkEventTable() {
     String sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'events';";
 
@@ -27,6 +28,7 @@ public class EventDao {
     }
   }
 
+  /* function to get all the events (used at dashboard) */
   public List<Event> getAllEvents() throws SQLException {
     List<Event> events = new ArrayList<>();
     String sql = "select * from events";
@@ -41,6 +43,7 @@ public class EventDao {
     return events;
   }
 
+  /* function to create event table if it is not exist */
   public void createEventTable() {
     String sql = "CREATE TABLE IF NOT EXISTS events (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -60,6 +63,7 @@ public class EventDao {
     }
   }
 
+ /* function to seed event table */
   public void bulkInsertEvent(List<Event> events) throws Exception {
     String sql = """
       INSERT INTO events(event, venue, day, price, sold, total , remaining , isDisabled)
@@ -88,6 +92,7 @@ public class EventDao {
     }
   }
 
+  /* function to update quantity for the event (triggered when an user book event) */
   public void updateQuantity(int eventId, int quantity) throws Exception {
     String sql = " UPDATE events SET sold = sold + ?, remaining = remaining - ? WHERE id = ? ";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -101,6 +106,7 @@ public class EventDao {
     }
   }
 
+  /* function to disable event based on the event name */
   public boolean setEventDisabledByName(String name, boolean disabled) throws Exception {
     String sql = "UPDATE events SET isDisabled = ? WHERE event = ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -114,6 +120,7 @@ public class EventDao {
     return false;
   }
 
+  /* function to delete event based on the event name */
   public boolean deleteEventByName(String eventName) throws Exception {
     String sql = "DELETE FROM events WHERE event = ?";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -126,6 +133,7 @@ public class EventDao {
     return false;
   }
 
+  /* function to get all the events based on event name */
   public List<Event> getAllEventsByName(String eventName) throws SQLException {
     List<Event> result = new ArrayList<>();
     String sql = "SELECT * FROM events WHERE event = ?";
@@ -139,6 +147,7 @@ public class EventDao {
     return result;
   }
 
+  /* function to check whether the event that is added by admin is a duplicate */
   public boolean isDuplicateEvent(String name, String venue, String day, int eventId) throws SQLException {
     String sql = "SELECT 1 FROM events " +
             "WHERE LOWER(event) = LOWER(?) " +
@@ -156,6 +165,7 @@ public class EventDao {
     }
   }
 
+  /* function to create an event (used by admin) */
   public boolean addSingleEvent(String name, String venue, String day, int price, int total) throws Exception {
     String sql = """
       INSERT INTO events(event, venue, day, price, sold, total , remaining , isDisabled)
@@ -184,6 +194,7 @@ public class EventDao {
     return false;
   }
 
+  /* function to update event (used by admin, to update either its the venue, day price total or remaining) */
   public boolean updateEvent(int eventId, String venue, String day, int price, int total) throws Exception {
     String sql = """
       UPDATE events
@@ -214,6 +225,7 @@ public class EventDao {
     return false;
   }
 
+  /* function to check total sold quantity for the event */
   public int checkEventTotalSold(int eventId) throws SQLException {
     String sql = "SELECT sold FROM events WHERE id = ?";
     try (PreparedStatement ps = conn.prepareStatement(sql)) {

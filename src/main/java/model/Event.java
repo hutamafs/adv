@@ -6,10 +6,10 @@ public class Event {
   private final String venue;
   private final String day;
   private final int price;
-  private int sold;
+  private final int sold;
   private final int total;
-  private int remaining;
-  private boolean isDisabled;
+  private final int remaining;
+  private final boolean isDisabled;
 
   public Event(String event, String venue, String day, int price, int sold, int total, int remaining) {
     this.event = event;

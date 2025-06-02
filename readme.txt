@@ -15,5 +15,5 @@ Y Event adding & deletion functions implemented
 Y Event modification function implemented
 Y Viewing orders of all users implemented
 N User password update and encryption implemented
-N Junit test cases included
+Y Junit test cases included
 Y Design pattern (in addition to MVC) -> Factory pattern and Singleton

@@ -11,6 +11,7 @@ import java.sql.SQLException;
 public class UserDAO {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
+  /* function to create user table if it is not exist yet */
   public void createUserTable() {
     String sql = "CREATE TABLE IF NOT EXISTS users (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -28,7 +29,9 @@ public class UserDAO {
     }
   }
 
+  /* function to create user, which being used at register */
   public boolean createUser(String name, String username, String password, String email, String phone) throws RegistrationException {
+    String hashedPw = PasswordUtil.obfuscate(password);
     String sql = """
       INSERT INTO users(name, username, password, email, phone)
       values (?,?,?,?,?)
@@ -38,7 +41,7 @@ public class UserDAO {
       PreparedStatement stmt = conn.prepareStatement(sql);
       stmt.setString(1, name);
       stmt.setString(2, username);
-      stmt.setString(3, password);
+      stmt.setString(3, hashedPw);
       stmt.setString(4, email);
       stmt.setString(5, phone);
       int rowsInserted = stmt.executeUpdate();
@@ -55,6 +58,7 @@ public class UserDAO {
     return false;
   }
 
+  /* function to login user and checks everything whether the username and password matches */
   public User validateLogin(String uName, String password) throws AuthenticationException{
     String sql = "SELECT * FROM users WHERE username = ?";
     try {
@@ -62,7 +66,7 @@ public class UserDAO {
       stmt.setString(1, uName);
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
-        if (rs.getString("password").equals(password)) {
+        if (PasswordUtil.matches(rs.getString("password"), password)) {
           int id = rs.getInt("id");
           String name = rs.getString("name");
           String username = rs.getString("username");

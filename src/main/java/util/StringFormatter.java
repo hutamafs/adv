@@ -3,6 +3,7 @@ package util;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/* this class is used to format the string into a better format at the table */
 public class StringFormatter {
 
   public static String capitalizeEachWord(String input) {

@@ -2,7 +2,6 @@ package util;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import model.Event;
 
 import java.util.Optional;
 

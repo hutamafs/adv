@@ -42,6 +42,7 @@ public class AdminView {
     table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
   }
 
+  /* this function is used to create edit and delete column for each event */
   private TableColumn<EventGroupRow, Void> createEditDeleteColumn() {
     TableColumn<EventGroupRow, Void> col = new TableColumn<>("Action");
     col.setCellFactory(_ -> new TableCell<>() {
@@ -50,6 +51,7 @@ public class AdminView {
       private final Button deleteBtn = new Button("Delete");
       private final HBox hbox = new HBox(6, editBtn, deleteBtn);
 
+      /* this is going to set what edit button does when it is being clicked */
       {
         editBtn.setOnAction(_ -> {
           EventGroupRow row = getTableView().getItems().get(getIndex());
@@ -60,7 +62,6 @@ public class AdminView {
                 new EventFormModal(selectedEvent, () -> {
                   try {
                     renderTable();
-//                    mainContent.getChildren().setAll(table);
                     contentBox.getChildren().setAll(addEventBtn, table);
                     mainLayout.setCenter(contentBox);
                   } catch (Exception e) {
@@ -75,6 +76,8 @@ public class AdminView {
             throw new RuntimeException(ex);
           }
         });
+
+        /* this is going to set what delete button does when it is being clicked */
         deleteBtn.setOnAction(_ -> {
           EventGroupRow row = getTableView().getItems().get(getIndex());
           try {
@@ -103,7 +106,7 @@ public class AdminView {
     return col;
   }
 
-  // reusable function to create column for table
+  // reusable function to create column for table except the action column
   private TableColumn<EventGroupRow, String> createColumn(String title, Function<EventGroupRow, String> extractor) {
     TableColumn<EventGroupRow, String> col = new TableColumn<>(title);
     col.setPrefWidth(200);
@@ -119,6 +122,7 @@ public class AdminView {
     actionCol.setCellFactory(_ -> new TableCell<>() {
       private final Button toggleBtn = new Button("Disable");
 
+      /* this function is being used to set what toggle button does when it is being clicked */
       {
         toggleBtn.setOnAction(_ -> {
           EventGroupRow row = getTableRow().getItem();
@@ -150,7 +154,7 @@ public class AdminView {
     return actionCol;
   }
 
-  // fetch all the events and render to the table
+  /* fetch all the events and render to the table */
   public void renderTable() throws Exception {
     List<Event> events;
     if (!EventController.checkEventTable()) {
@@ -159,11 +163,11 @@ public class AdminView {
       events = EventController.getAllEvents();
     }
 
-    // group events by name
+    /* group events by name */
     Map<String, List<Event>> grouped = events.stream()
       .collect(Collectors.groupingBy(Event::getEventName));
 
-    // Create event group rows
+    /* Create event group rows */
     List<EventGroupRow> groupedRows = new ArrayList<>();
     for (Map.Entry<String, List<Event>> entry : grouped.entrySet()) {
       String title = entry.getKey();
@@ -175,7 +179,7 @@ public class AdminView {
       groupedRows.add(new EventGroupRow(title, variants, allDisabled));
     }
 
-    // organize the mapping for each row
+    /* organize the mapping for each row */
     ObservableList<EventGroupRow> observableItems = FXCollections.observableList(groupedRows);
     table.getColumns().clear();
     table.setEditable(true);
@@ -195,7 +199,7 @@ public class AdminView {
     table.setItems(observableItems);
   }
 
-  // side buttons
+  /* this function is used to create navigation button at the sidebar */
   private Button createNavButton(String text) {
     Button button = new Button(text);
     button.setStyle("-fx-font-size: 14px; -fx-min-width: 120px;");
@@ -250,8 +254,6 @@ public class AdminView {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-//      contentBox.getChildren().setAll(addEventBtn, table);
-//      contentBox.setPadding(new Insets(10));
       mainLayout.setCenter(contentBox);
     });
 

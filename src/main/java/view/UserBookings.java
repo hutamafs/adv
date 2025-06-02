@@ -48,16 +48,16 @@ public class UserBookings {
       ObservableList<Booking> observableItems = FXCollections.observableList(bookings);
       table.setEditable(true);
       table.getColumns().addAll(
-              createColumn("Number", d -> String.format("%04d", d.number)),
-              createColumn("Username", d -> d.username),
-              createColumn("Email", d -> d.email),
-              createColumn("Phone", d -> d.phone),
+              createColumn("Number", d -> String.format("%04d", d.getNumber())),
+              createColumn("Username", d -> d.getUsername()),
+              createColumn("Email", d -> d.getEmail()),
+              createColumn("Phone", d -> d.getPhone()),
               createColumn("Date and time", d -> {
-                Date adjustedDate = adjustToMelbourneTime(d.createdAt);
+                Date adjustedDate = adjustToMelbourneTime(d.getDate());
                 return formatter.format(adjustedDate);
               }),
-              createColumn("Event and total seats", d -> d.event + " for " + d.quantity + " x seat(s)"),
-              createColumn("Total price", d -> String.valueOf(d.totalPrice))
+              createColumn("Event and total seats", d -> d.getEvent() + " for " + d.getQuantity() + " x seat(s)"),
+              createColumn("Total price", d -> String.valueOf(d.getTotalPrice()))
       );
       VBox content = new VBox(10, table);
 

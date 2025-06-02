@@ -4,10 +4,10 @@ import dao.CartDao;
 import model.Cart;
 import util.AlertUtil;
 import util.Session;
-import javafx.application.Platform;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CartController {
   final static CartDao dao = new CartDao();
@@ -15,16 +15,19 @@ public class CartController {
     dao.createCartTable();
   }
 
+  /* function to get total quantity remaining for event from event ID */
   public static int getEventRemainingQuantity(int eventId) throws SQLException {
     return dao.getEventRemainingQuantity(eventId);
   }
 
+  /* function to get current cart quantity based on event ID */
   public static int getCurrentCartQuantity(int eventId) throws SQLException {
     return dao.getCurrentCartQuantity(eventId, Session.getCurrentUser());
   }
 
   public static List<Cart> getCartForUser() throws Exception {
     List <Cart> carts = dao.getCartForUser(Session.getCurrentUser());
+    carts = carts.stream().filter(event -> !event.getDisabled()).collect(Collectors.toList());
 
     // re adjust cart quantity to make sure the quantity in the cart mirrors whatever amount is available at the database
     for (Cart cart : carts) {

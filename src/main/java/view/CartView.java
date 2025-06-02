@@ -204,7 +204,7 @@ public class CartView {
     mainLayout.setCenter(content);
   }
 
-  private void setupTable(List<Cart> cart) {
+  private void setupTable() {
     // Clear existing columns to prevent duplicates on refresh
     table.getColumns().clear();
 
@@ -230,9 +230,9 @@ public class CartView {
     List<Cart> cart = CartController.getCartForUser();
     observableItems = FXCollections.observableArrayList(cart);
 
-    // setup the table if we have items
+    // set up the table if we have items
     if (!cart.isEmpty()) {
-      setupTable(cart);
+      setupTable();
       showCartTable();
     } else {
       showEmptyCart();

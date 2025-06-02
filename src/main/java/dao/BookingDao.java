@@ -15,6 +15,7 @@ import java.util.List;
 public class BookingDao {
   Connection conn = DatabaseManager.getInstance().getConnection();
 
+  /* function to get all the bookings */
   public List<Booking> getAllBookings() throws SQLException {
     List<Booking> bookings = new ArrayList<>();
     String sql = "SELECT \n" +
@@ -48,6 +49,7 @@ public class BookingDao {
     return bookings;
   }
 
+  /* function to get all the previous bookings */
   public List<Booking> getPreviousBookings(int userId) throws SQLException {
     List<Booking> bookings = new ArrayList<>();
     String sql = "select * from bookings where userId = ? order by createdAt desc";
@@ -69,6 +71,7 @@ public class BookingDao {
     return bookings;
   }
 
+  /* used to create booking table */
   public void createBookingTable() {
     String sql = "CREATE TABLE IF NOT EXISTS bookings (" +
         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -87,6 +90,7 @@ public class BookingDao {
     }
   }
 
+  /* fuction to book event (used by user) */
   public void bookEvent(String event, String day, int quantity, int total , int userId) throws Exception {
     String sql = """
       INSERT INTO bookings(event, day, quantity, total , userId )

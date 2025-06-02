@@ -1,6 +1,5 @@
 package controller;
 
-import dao.EventDao;
 import dao.UserDAO;
 
 public class TableController {

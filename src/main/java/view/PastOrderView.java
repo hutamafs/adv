@@ -24,7 +24,6 @@ import util.StringFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.function.Function;
 
 public class PastOrderView {
@@ -47,12 +46,12 @@ public class PastOrderView {
   }
 
   public String convertIntoLines(Booking booking) {
-    return "order number: " + String.format("%04d", booking.number) + "\n" +
-            "date and time ordered: " + formatter.format(booking.createdAt) +
+    return "order number: " + String.format("%04d", booking.getNumber()) + "\n" +
+            "date and time ordered: " + formatter.format(booking.getDate()) +
             "\n" +
-              "Event: " + booking.event + " (x" + booking.quantity + " ticket(s))" +
+              "Event: " + booking.getEvent() + " (x" + booking.getQuantity() + " ticket(s))" +
             "\n" +
-            "Total Purchased: $" + booking.totalPrice + "\n\n";
+            "Total Purchased: $" + booking.getTotalPrice() + "\n\n";
   }
 
   public BorderPane getScene() throws Exception {
@@ -85,13 +84,13 @@ public class PastOrderView {
       ObservableList<Booking> observableItems = FXCollections.observableList(bookings);
       table.setEditable(true);
       table.getColumns().addAll(
-              createColumn("Number", d -> String.format("%04d", d.number)),
+              createColumn("Number", d -> String.format("%04d", d.getNumber())),
               createColumn("Date and time", d -> {
-                Date adjustedDate = adjustToMelbourneTime(d.createdAt);
+                Date adjustedDate = adjustToMelbourneTime(d.getDate());
                 return formatter.format(adjustedDate);
               }),
-              createColumn("Event and total seats", d -> StringFormatter.capitalizeEachWord(d.event + " for " + d.quantity + " x seat(s)")),
-              createColumn("Total price", d -> String.valueOf(d.totalPrice))
+              createColumn("Event and total seats", d -> StringFormatter.capitalizeEachWord(d.getEvent() + " for " + d.getQuantity() + " x seat(s)")),
+              createColumn("Total price", d -> String.valueOf(d.getTotalPrice()))
       );
       HBox buttonContainer = new HBox(exportBtn);
       buttonContainer.setAlignment(Pos.BOTTOM_LEFT);

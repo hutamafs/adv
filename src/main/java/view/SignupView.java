@@ -1,6 +1,6 @@
 package view;
 
-import controller.RegisterController;
+import controller.UserController;
 import dao.RegistrationException;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -53,7 +53,7 @@ public class SignupView extends Application {
       String phoneString = phoneField.getText();
 
       try {
-        boolean registerStatus = RegisterController.register(enteredName, enteredUsername, enteredPassword, enteredEmail, phoneString);
+        boolean registerStatus = UserController.register(enteredName, enteredUsername, enteredPassword, enteredEmail, phoneString);
         if (registerStatus) {
           LoginView loginView = new LoginView();
           loginView.start(primaryStage, true);
